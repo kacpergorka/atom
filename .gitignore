@@ -1,2 +1,5 @@
 .DS_Store
+*.json
 xcuserdata/
+__pycache__/
+logs/
