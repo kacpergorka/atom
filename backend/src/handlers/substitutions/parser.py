@@ -81,6 +81,12 @@ async def wyodrębnijZastępstwa(
         tymczasowy = BeautifulSoup(str(węzeł), "html.parser")
 
         try:
+            for element in tymczasowy.find_all(string=True):
+                if isinstance(element, NavigableString):
+                    element.replace_with(
+                        element.replace("\n", "").replace("\r", "")
+                    )
+
             for br in tymczasowy.find_all("br"):
                 br.replace_with(NavigableString("\n"))
 
@@ -96,7 +102,6 @@ async def wyodrębnijZastępstwa(
         tekst = tekst.replace("\xa0", " ")
         tekst = re.sub(r"[ \t]*\n[ \t]*", "\n", tekst)
         tekst = re.sub(r"[ \t]{2,}", " ", tekst)
-        tekst = re.sub(r"\n\n", "\n", tekst)
         tekst = re.sub(r"\n{3,}", "\n\n", tekst)
 
         return tekst.strip("\n ")
