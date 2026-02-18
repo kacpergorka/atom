@@ -79,12 +79,15 @@ class LekcjaStandardowa(TypedDict):
     sala: EncjaPlanu
     oddzialy: list[EncjaPlanu]
 
+Lekcja = LekcjaStandardowa | LekcjaNiestandardowa
 
 class WpisPlanu(TypedDict):
     numer: int
-    godziny: str
+    poczatek: str
+    koniec: str
     lekcje: list[Lekcja]
 
+PlanTygodniowy = dict[str, list[WpisPlanu]]
 
 class PlanLekcji(TypedDict):
     nazwa: str | None
@@ -93,9 +96,6 @@ class PlanLekcji(TypedDict):
     identyfikator: str | None
     data: str | None
     plan: PlanTygodniowy
-
-Lekcja = LekcjaStandardowa | LekcjaNiestandardowa
-PlanTygodniowy = dict[str, list[WpisPlanu]]
 
 
 # Struktury zastępstw
@@ -113,4 +113,5 @@ class Zastępstwa(TypedDict):
     identyfikator: str | None
     dzien: str | None
     informacje: str
+    skrocone: bool | None
     zastepstwa: list[Zastępstwo]

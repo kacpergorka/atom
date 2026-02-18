@@ -47,8 +47,8 @@ router = APIRouter(
 async def zastepstwa(
     identyfikator: str | None = Query(None, description="Identyfikator oddziału lub nauczyciela, np. o17, n78"),
     grupy: list[str] | None = Query(None, description="Lista oznaczeń określających grupę przedmiotów."),
-    religia: bool = Query(None, description="Określa, czy uwzględniać lekcje religii w planie lekcji."),
-    edukacjaZdrowotna: bool = Query(None, description="Określa, czy uwzględniać lekcje edukacji zdrowotnej w planie lekcji.")
+    religia: bool | None = Query(None, description="Określa, czy uwzględniać lekcje religii w planie lekcji."),
+    edukacjaZdrowotna: bool | None = Query(None, description="Określa, czy uwzględniać lekcje edukacji zdrowotnej w planie lekcji.")
 ) -> Zastepstwa:
     try:
         return await pobierzZastępstwa(identyfikator, grupy, religia, edukacjaZdrowotna)

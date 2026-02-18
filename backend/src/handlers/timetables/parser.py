@@ -46,6 +46,8 @@ async def wyodrębnijPlanLekcji(
     atom: aiohttp.ClientSession,
     zawartośćStrony: BeautifulSoup | None,
     listaOddziałów: ListaOddziałów | None,
+    skrócone: bool | None,
+    dzieńSkróconych: str | None,
     grupy: list[str] | None,
     przedmiotyDodatkowe: dict[str, bool] | None,
     url: str | None
@@ -57,6 +59,8 @@ async def wyodrębnijPlanLekcji(
         atom (aiohttp.ClientSession): Aktywna sesja HTTP używana do wykonania zapytania.
         zawartośćStrony (BeautifulSoup | None): Obiekt BeautifulSoup reprezentujący stronę HTML.
         listaOddziałów (ListaOddziałów | None): Słownik wszystkich oddziałów.
+        skrócone (bool | None): Określa, czy zastąpić standardowe godziny lekcyjne na rozkład skrócony.
+        dzieńSkróconych (str | None): Dzień tygodnia, dla którego obowiązuje skrócony rozkład zajęć.
         grupy (list[str] | None): Lista oznaczeń określających grupę przedmiotów.
         przedmiotyDodatkowe (dict[str, bool] | None): Słownik przedmiotów dodatkowych przeznaczonych do filtracji.
         url (str): Adres strony internetowej planu lekcji użyty do pobrania jej zawartości.
@@ -466,6 +470,12 @@ async def wyodrębnijPlanLekcji(
         if not tabela:
             return None
 
+        rozkładSkrócony = konfiguracja.get("skrocone", {})
+        schematSkróconych: dict[int, str] = {
+            int(numer): zakres
+            for numer, zakres in rozkładSkrócony.items()
+        }
+
         dniTygodnia = wydobądźDniTygodnia(tabela)
         wiersze = tabela.find_all("tr")[1:]
         plan = {dzień: [] for dzień in dniTygodnia}
@@ -477,10 +487,19 @@ async def wyodrębnijPlanLekcji(
                 continue
 
             numer = int(komórki[0].get_text(strip=True))
-            godziny = komórki[1].get_text(strip=True).replace(" ", "")
 
             for indeks, dzień in enumerate(dniTygodnia):
                 td = komórki[indeks + 2]
+
+                if skrócone is True and dzieńSkróconych is not None and dzień == dzieńSkróconych:
+                    godziny = schematSkróconych.get(numer)
+                else:
+                    godziny = None
+
+                if not godziny:
+                    godziny = komórki[1].get_text(strip=True).replace(" ", "")
+
+                początek, koniec = godziny.split("-", 1)
 
                 lekcje = wyczyśćKomórkę(td, dzień, numer, nazwa)
                 if not lekcje:
@@ -488,7 +507,8 @@ async def wyodrębnijPlanLekcji(
 
                 plan[dzień].append({
                     "numer": numer,
-                    "godziny": godziny,
+                    "poczatek": początek,
+                    "koniec": koniec,
                     "lekcje": lekcje
                 })
 

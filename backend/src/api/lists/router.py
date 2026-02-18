@@ -13,7 +13,8 @@
 # Zewnętrzne biblioteki
 from fastapi import (
     APIRouter,
-    HTTPException
+    HTTPException,
+    Query
 )
 
 # Wewnętrzne importy
@@ -41,9 +42,13 @@ router = APIRouter(
         summary="Pobiera listy oddziałów, nauczycieli oraz sal.",
         description="Pobiera listy oddziałów, nauczycieli oraz sal ze strony internetowej planu lekcji, której to URL wprowadzony jest w pliku konfiguracyjnym serwera."
 )
-async def listy() -> Listy:
+async def listy(
+    oddzialy: bool | None = Query(None, description="Określa, czy uwzględnić listę oddziałów."),
+    nauczyciele: bool | None = Query(None, description="Określa, czy uwzględnić listę nauczycieli."),
+    sale: bool | None = Query(None, description="Określa, czy uwzględnić listę oddziałów.")
+) -> Listy:
     try:
-        return await pobierzListy()
+        return await pobierzListy(oddzialy, nauczyciele, sale)
     except BrakWymaganychDanych:
         raise HTTPException(500, "Brak wymaganych danych w pliku konfiguracyjnym serwera.")
     except BłądWewnętrzny:

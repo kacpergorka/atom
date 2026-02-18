@@ -359,6 +359,7 @@ async def wyodrębnijZastępstwa(
             "identyfikator": None,
             "dzien": None,
             "informacje": "",
+            "skrocone": None,
             "zastepstwa": []
         }
 
@@ -370,6 +371,7 @@ async def wyodrębnijZastępstwa(
             "identyfikator": None,
             "dzien": None,
             "informacje": "",
+            "skrocone": None,
             "zastepstwa": []
         }
 
@@ -388,6 +390,7 @@ async def wyodrębnijZastępstwa(
 
         informacjeDodatkowe = wyodrębnijInformacje(wiersze, "st0")
         dzień = wyodrębnijDzień(informacjeDodatkowe) if informacjeDodatkowe else None
+        skrócone: bool = "rzs.pdf" in informacjeDodatkowe.lower() or "skrócon" in informacjeDodatkowe.lower()
 
         indeksST0: int | None = None
         for indeksWiersza, wiersz in enumerate(wiersze):
@@ -470,6 +473,7 @@ async def wyodrębnijZastępstwa(
             "identyfikator": identyfikator,
             "dzien": dzień,
             "informacje": informacjeDodatkowe,
+            "skrocone": skrócone,
             "zastepstwa": wpisyZastępstw
         }
     except Exception as e:
@@ -480,5 +484,6 @@ async def wyodrębnijZastępstwa(
             "identyfikator": None,
             "dzien": None,
             "informacje": "",
+            "skrocone": None,
             "zastepstwa": []
         }

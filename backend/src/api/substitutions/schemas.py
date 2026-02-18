@@ -26,4 +26,5 @@ class Zastepstwa(BaseModel):
     identyfikator: str | None
     dzien: str | None
     informacje: str
+    skrocone: bool | None
     zastepstwa: list[Zastepstwo]

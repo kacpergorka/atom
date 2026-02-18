@@ -90,7 +90,7 @@ def wczytajKonfiguracje() -> Konfiguracja:
         )
 
     domyślne = {
-        "wersja": "0.0.1-custom",
+        "wersja": "0.1.0-custom",
         "plany": {
             "url": "https://plan.zse.bydgoszcz.pl/plany/",
             "kodowanie": "utf-8"
@@ -105,7 +105,24 @@ def wczytajKonfiguracje() -> Konfiguracja:
         },
         "grupy": [
             "1/3", "2/3", "3/3", "1/2", "2/2", "1/1", "j1", "j2"
-        ]
+        ],
+        "skrocone": {
+            "0": "7:05-7:35",
+            "1": "7:40-8:10",
+            "2": "8:15-8:45",
+            "3": "8:50-9:20",
+            "4": "9:30-10:00",
+            "5": "10:05-10:35",
+            "6": "10:40-11:10",
+            "7": "11:15-11:45",
+            "8": "11:50-12:20",
+            "9": "12:30-13:00",
+            "10": "13:05-13:35",
+            "11": "13:40-14:10",
+            "12": "14:15-14:45",
+            "13": "14:50-15:20",
+            "14": "15:25-15:55"
+        }
     }
 
     ścieżka = Path(__file__).resolve().parents[1] / "config.json"

@@ -30,8 +30,8 @@ from src.handlers.substitutions.parser import wyodrębnijZastępstwa
 async def pobierzZastępstwa(
     identyfikator: str | None,
     grupy: list[str] | None,
-    religia: bool,
-    edukacjaZdrowotna: bool
+    religia: bool | None,
+    edukacjaZdrowotna: bool | None
 ) -> Zastepstwa:
     """
     Pobiera i przetwarza zastępstwa na podstawie przekazanych parametrów wejściowych.

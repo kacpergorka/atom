@@ -24,9 +24,18 @@ from src.handlers.lists.parser import wyodrębnijListy
 from src.handlers.logging import logowanie
 from src.handlers.scraper import pobierzZawartośćStrony
 
-async def pobierzListy() -> Listy:
+async def pobierzListy(
+    oddzialy: bool | None,
+    nauczyciele: bool | None,
+    sale: bool | None
+) -> Listy:
     """
     Pobiera i przetwarza listy oddziałów, nauczycieli oraz sal.
+
+    Args:
+        oddzialy (bool | None): Flaga informująca, czy uwzględnić listę oddziałów.
+        nauczyciele (bool | None): Flaga informująca, czy uwzględnić listę nauczycieli.
+        sale (bool | None): Flaga informująca, czy uwzględnić listę sal.
 
     Returns:
         Listy: Słownik zawierający ustrukturyzowane listy oddziałów, nauczycieli oraz sal.
@@ -51,7 +60,17 @@ async def pobierzListy() -> Listy:
         async with semafor:
             zawartośćStrony = await pobierzZawartośćStrony(atom.sesja, url, kodowanie)
 
-        return wyodrębnijListy(zawartośćStrony, url)
+        suroweListy = wyodrębnijListy(zawartośćStrony, url)
+        listy = Listy(**suroweListy)
+
+        if not any([oddzialy, nauczyciele, sale]):
+            return listy
+
+        return Listy(
+            oddzialy=listy.oddzialy if oddzialy else None,
+            nauczyciele=listy.nauczyciele if nauczyciele else None,
+            sale=listy.sale if sale else None
+        )
     except BrakWymaganychDanych:
         raise
     except TimeoutError as e:

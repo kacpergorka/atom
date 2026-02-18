@@ -33,18 +33,15 @@ class LekcjaStandardowa(BaseModel):
     sala: EncjaPlanu
     oddzialy: list[EncjaPlanu]
 
-
 Lekcja = Union[LekcjaStandardowa, LekcjaNiestandardowa]
-
 
 class WpisPlanu(BaseModel):
     numer: int
-    godziny: str
+    poczatek: str
+    koniec: str
     lekcje: list[Lekcja]
 
-
 PlanTygodniowy = dict[str, list[WpisPlanu]]
-
 
 class PlanLekcji(BaseModel):
     nazwa: str | None

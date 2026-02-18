@@ -18,13 +18,11 @@ class EncjaWartosciListy(BaseModel):
     identyfikator: str
     rozwiniecie: str
 
-
 ListaOddziałów = dict[str, EncjaWartosciListy]
 ListaNauczycieli = dict[str, EncjaWartosciListy]
 ListaSal = dict[str, EncjaWartosciListy]
 
-
 class Listy(BaseModel):
-    oddzialy: ListaOddziałów
-    nauczyciele: ListaNauczycieli
-    sale: ListaSal
+    oddzialy: ListaOddziałów | None
+    nauczyciele: ListaNauczycieli | None
+    sale: ListaSal | None
