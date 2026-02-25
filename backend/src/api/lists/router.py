@@ -45,7 +45,7 @@ router = APIRouter(
 async def listy(
     oddzialy: bool | None = Query(None, description="Określa, czy uwzględnić listę oddziałów."),
     nauczyciele: bool | None = Query(None, description="Określa, czy uwzględnić listę nauczycieli."),
-    sale: bool | None = Query(None, description="Określa, czy uwzględnić listę oddziałów.")
+    sale: bool | None = Query(None, description="Określa, czy uwzględnić listę sal.")
 ) -> Listy:
     try:
         return await pobierzListy(oddzialy, nauczyciele, sale)

@@ -31,7 +31,6 @@ async def pobierzPlanLekcji(
     identyfikator: str,
     grupy: list[str] | None,
     dzieńSkróconych: str | None,
-    skrócone: bool | None,
     religia: bool | None,
     edukacjaZdrowotna: bool | None
 ) -> PlanLekcji:
@@ -42,7 +41,6 @@ async def pobierzPlanLekcji(
         identyfikator (str | None): Identyfikator oddziału, nauczyciela lub sali, np. o17, n78, s45.
         grupy (list[str] | None): Lista oznaczeń określających grupę przedmiotów.
         dzieńSkróconych (str | None): Dzień tygodnia, dla którego obowiązuje skrócony rozkład zajęć.
-        skrócone (bool | None): Określa, czy zastąpić standardowe godziny lekcyjne na rozkład skrócony.
         religia (bool | None): Flaga informująca, czy uwzględniać lekcje religii w planie lekcji.
         edukacjaZdrowotna (bool | None): Flaga informująca, czy uwzględniać lekcje edukacji zdrowotnej w planie lekcji.
 
@@ -86,7 +84,7 @@ async def pobierzPlanLekcji(
         listy = wyodrębnijListy(zawartośćStronyListy, urlListy)
         listaOddziałów = listy.get("oddzialy", {})
 
-        return await wyodrębnijPlanLekcji(atom.sesja, zawartośćStronyPlanu, listaOddziałów, skrócone, dzieńSkróconych, grupy, przedmiotyDodatkowe, urlPlanu)
+        return await wyodrębnijPlanLekcji(atom.sesja, zawartośćStronyPlanu, listaOddziałów, dzieńSkróconych, grupy, przedmiotyDodatkowe, urlPlanu)
     except NieprawidłowyIdentyfikator:
         raise
     except BrakWymaganychDanych:

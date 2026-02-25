@@ -47,13 +47,12 @@ router = APIRouter(
 async def planlekcji(
     identyfikator: str = Query(..., description="Identyfikator oddziału, nauczyciela lub sali, np. o17, n78, s45."),
     grupy: list[str] | None = Query(None, description="Lista oznaczeń określających grupę przedmiotów."),
-    dzien: str | None = Query(None, description="Dzień tygodnia, dla którego obowiązuje skrócony rozkład zajęć."),
-    skrocone: bool | None = Query(None, description="Określa, czy zastąpić standardowe godziny lekcyjne na rozkład skrócony."),
+    skrocone: str | None = Query(None, description="Dzień tygodnia, dla którego obowiązuje skrócony rozkład zajęć."),
     religia: bool | None = Query(None, description="Określa, czy uwzględniać lekcje religii w planie lekcji."),
     edukacjaZdrowotna: bool | None = Query(None, description="Określa, czy uwzględniać lekcje edukacji zdrowotnej w planie lekcji.")
 ) -> PlanLekcji:
     try:
-        return await pobierzPlanLekcji(identyfikator, grupy, dzien, skrocone, religia, edukacjaZdrowotna)
+        return await pobierzPlanLekcji(identyfikator, grupy, skrocone, religia, edukacjaZdrowotna)
     except NieprawidłowyIdentyfikator:
         raise HTTPException(400, "Otrzymano nieprawidłowy identyfikator.")
     except BrakWymaganychDanych:

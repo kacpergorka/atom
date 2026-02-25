@@ -39,6 +39,7 @@ class Konfiguracja(TypedDict):
     lista: KonfiguracjaListy
     zastepstwa: KonfiguracjaZastępstw
     grupy: list[str]
+    skrocone: dict[str, str]
 
 
 # Struktury list oddziałów, nauczycieli i sal
@@ -59,6 +60,10 @@ class Listy(TypedDict):
 
 
 # Struktury planu lekcji
+
+class Data(TypedDict):
+    od: str | None
+    do: str | None
 
 class EncjaPlanu(TypedDict):
     tekst: str | None
@@ -83,8 +88,8 @@ Lekcja = LekcjaStandardowa | LekcjaNiestandardowa
 
 class WpisPlanu(TypedDict):
     numer: int
-    poczatek: str
-    koniec: str
+    od: str
+    do: str
     lekcje: list[Lekcja]
 
 PlanTygodniowy = dict[str, list[WpisPlanu]]
@@ -94,7 +99,8 @@ class PlanLekcji(TypedDict):
     kategoria: str | None
     url: str
     identyfikator: str | None
-    data: str | None
+    wygenerowano: str | None
+    data: Data | None
     plan: PlanTygodniowy
 
 
@@ -102,6 +108,7 @@ class PlanLekcji(TypedDict):
 
 class Zastępstwo(TypedDict):
     zidentyfikowane: bool
+    grupa: str | None
     nauczyciel: str
     lekcja: int | None
     opis: str | None

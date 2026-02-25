@@ -23,6 +23,7 @@ from src.classes.types import (
     Zastępstwo
 )
 from src.handlers.configuration import konfiguracja
+from src.handlers.helpers import sprawdźGrupę
 from src.handlers.logging import logowanie
 from src.handlers.scraper import pobierzZawartośćStrony
 from src.handlers.substitutions.helpers import zwróćNazwyKluczy
@@ -38,7 +39,7 @@ async def uzupełnijZastępstwa(
     przedmiotyDodatkowe: dict[str, bool] | None
 ) -> list[Zastępstwo]:
     """
-    Uzupełnia niezidentyfikowane wpisy zastępstw dla konkretnego oddziału, na podstawie jego planu lekcji oraz planu lekcji nauczyciela.
+    Uzupełnia niezidentyfikowane wpisy zastępstw i przetwarza zastępstwa z wybranymi grupami dla konkretnego oddziału, na podstawie jego planu lekcji oraz planu lekcji nauczyciela.
 
     Args:
         atom (aiohttp.ClientSession): Aktywna sesja HTTP używana do wykonania zapytania.
@@ -74,7 +75,7 @@ async def uzupełnijZastępstwa(
             )
             return wpisyZastępstw
 
-        planLekcjiOddziału = await wyodrębnijPlanLekcji(atom, zawartośćPlanuOddziału, listaOddziałów, grupy, przedmiotyDodatkowe, url)
+        planLekcjiOddziału = await wyodrębnijPlanLekcji(atom, zawartośćPlanuOddziału, listaOddziałów, None, grupy, przedmiotyDodatkowe, url)
         if not planLekcjiOddziału:
             logowanie.warning(
                 "Brak planu lekcji oddziału. Zwracanie nieuzupełnionej zawartości."
@@ -86,7 +87,9 @@ async def uzupełnijZastępstwa(
         planDnia = planWszystkichDni.get(dzień, [])
 
         for wpis in wpisyZastępstw:
-            if wpis.get("zidentyfikowane"):
+            surowyOpis = wpis.get("opis")
+
+            if wpis.get("zidentyfikowane") and not re.search(r"\([123]\)", surowyOpis or ""):
                 continue
 
             if wpis.get("lekcja") is None:
@@ -132,13 +135,59 @@ async def uzupełnijZastępstwa(
                         continue
 
                     if kluczeZastępstwa & kluczePlanu:
+                        dopasowanie = re.search(r"\((\d)\)", surowyOpis) if surowyOpis else None
+                        licznikGrupyZastępstwa = dopasowanie.group(1) if dopasowanie else None
+                        grupa = lekcja.get("grupa")
+
+                        if licznikGrupyZastępstwa is None:
+                            if not sprawdźGrupę(grupa, grupy):
+                                continue
+
+                            wpis["grupa"] = grupa
+                            wpis["zidentyfikowane"] = True
+                            break
+
+                        if not grupa:
+                            continue
+
+                        licznikGrupyLekcji = grupa.split("/")[0]
+                        if licznikGrupyLekcji != licznikGrupyZastępstwa:
+                            continue
+
+                        if not sprawdźGrupę(grupa, grupy):
+                            continue
+
+                        wpis["grupa"] = grupa
                         wpis["zidentyfikowane"] = True
                         break
 
                 if wpis.get("zidentyfikowane"):
                     break
 
-        return [wpis for wpis in wpisyZastępstw if wpis.get("zidentyfikowane")]
+        wynik = []
+
+        for wpis in wpisyZastępstw:
+            if not wpis.get("zidentyfikowane"):
+                continue
+
+            opis = wpis.get("opis") or ""
+            dopasowanie = re.search(r"\((\d)\)", opis)
+
+            if dopasowanie and grupy:
+                grupaWpisu = wpis.get("grupa")
+
+                if not grupaWpisu:
+                    continue
+
+                if not sprawdźGrupę(grupaWpisu, grupy):
+                    continue
+
+            if "-" in opis:
+                wpis["opis"] = opis.split("-", 1)[1].strip()
+
+            wynik.append(wpis)
+
+        return wynik
     except Exception as e:
         logowanie.exception(
             f"Wystąpił błąd podczas przypisywania zastępstw bez oddziału do planu lekcji: {e}. Zwracanie niezmodyfikowanej listy wpisów zastępstw."

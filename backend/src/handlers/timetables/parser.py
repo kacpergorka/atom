@@ -35,6 +35,7 @@ from src.classes.types import (
     PlanLekcji
 )
 from src.handlers.configuration import konfiguracja
+from src.handlers.helpers import sprawdźGrupę
 from src.handlers.logging import logowanie
 from src.handlers.timetables.helpers import (
     wydobądźIdentyfikator,
@@ -46,7 +47,6 @@ async def wyodrębnijPlanLekcji(
     atom: aiohttp.ClientSession,
     zawartośćStrony: BeautifulSoup | None,
     listaOddziałów: ListaOddziałów | None,
-    skrócone: bool | None,
     dzieńSkróconych: str | None,
     grupy: list[str] | None,
     przedmiotyDodatkowe: dict[str, bool] | None,
@@ -59,7 +59,6 @@ async def wyodrębnijPlanLekcji(
         atom (aiohttp.ClientSession): Aktywna sesja HTTP używana do wykonania zapytania.
         zawartośćStrony (BeautifulSoup | None): Obiekt BeautifulSoup reprezentujący stronę HTML.
         listaOddziałów (ListaOddziałów | None): Słownik wszystkich oddziałów.
-        skrócone (bool | None): Określa, czy zastąpić standardowe godziny lekcyjne na rozkład skrócony.
         dzieńSkróconych (str | None): Dzień tygodnia, dla którego obowiązuje skrócony rozkład zajęć.
         grupy (list[str] | None): Lista oznaczeń określających grupę przedmiotów.
         przedmiotyDodatkowe (dict[str, bool] | None): Słownik przedmiotów dodatkowych przeznaczonych do filtracji.
@@ -336,29 +335,8 @@ async def wyodrębnijPlanLekcji(
                     continue
 
             grupa = wydobądźGrupę(przedmiot)
-            if grupy and grupa:
-                dostępneGrupy = set(konfiguracja.get("grupy", []))
-                obsługiwaneGrupy = [grupa for grupa in grupy if grupa in dostępneGrupy]
-
-                if obsługiwaneGrupy:
-                    if "/" in grupa:
-                        mianownik = grupa.split("/")[1]
-
-                        if mianownik == "1":
-                            wybraneGrupy = []
-                        else:
-                            wybraneGrupy = [
-                                grupa for grupa in obsługiwaneGrupy
-                                if "/" in grupa and grupa.split("/")[1] == mianownik
-                            ]
-                    else:
-                        wybraneGrupy = [
-                            grupa for grupa in obsługiwaneGrupy
-                            if grupa.startswith("j")
-                        ]
-
-                    if wybraneGrupy and grupa not in wybraneGrupy:
-                        continue
+            if not sprawdźGrupę(grupa, grupy):
+                continue
 
             if sprawdźNauczyciela(nazwa, nauczyciel, sala, rozwinięciaOddziałów):
                 potrzebniNauczyciele.add((sala["url"], dzień, numer))
@@ -447,7 +425,11 @@ async def wyodrębnijPlanLekcji(
         tabela = zawartośćStrony.select_one("table.tabela")
 
         nazwa = None
-        data = None
+        wygenerowano = None
+        data = {
+            "od": None,
+            "do": None
+        }
         wyniki = []
 
         for dane in listaOddziałów.values():
@@ -464,8 +446,27 @@ async def wyodrębnijPlanLekcji(
                 nazwa = " ".join([części[0]] + części[2:])
 
         for td in zawartośćStrony.find_all("td"):
-            if "Obowiązuje od:" in td.get_text():
-                data = td.get_text().replace("Obowiązuje od:", "").strip()
+            tekst = (
+                td.get_text(" ", strip=True)
+                .replace(":", "")
+                .replace("r.", "")
+            )
+
+            if tekst.startswith("Obowiązuje"):
+                if "od" in tekst:
+                    data["od"] = tekst.split("od", 1)[1].split("do", 1)[0].strip()
+
+                if "do" in tekst:
+                    data["do"] = tekst.split("do", 1)[1].strip()
+
+                break
+
+        for td in zawartośćStrony.find_all("td"):
+            tekst = td.get_text(" ", strip=True).lower()
+
+            if tekst.startswith("wygenerowano"):
+                wygenerowano = tekst.replace("wygenerowano", "").strip().split()[0]
+                break
 
         if not tabela:
             return None
@@ -491,7 +492,7 @@ async def wyodrębnijPlanLekcji(
             for indeks, dzień in enumerate(dniTygodnia):
                 td = komórki[indeks + 2]
 
-                if skrócone is True and dzieńSkróconych is not None and dzień == dzieńSkróconych:
+                if dzieńSkróconych is not None and dzień == dzieńSkróconych:
                     godziny = schematSkróconych.get(numer)
                 else:
                     godziny = None
@@ -499,7 +500,7 @@ async def wyodrębnijPlanLekcji(
                 if not godziny:
                     godziny = komórki[1].get_text(strip=True).replace(" ", "")
 
-                początek, koniec = godziny.split("-", 1)
+                od, do = godziny.split("-", 1)
 
                 lekcje = wyczyśćKomórkę(td, dzień, numer, nazwa)
                 if not lekcje:
@@ -507,8 +508,8 @@ async def wyodrębnijPlanLekcji(
 
                 plan[dzień].append({
                     "numer": numer,
-                    "poczatek": początek,
-                    "koniec": koniec,
+                    "od": od,
+                    "do": do,
                     "lekcje": lekcje
                 })
 
@@ -562,6 +563,7 @@ async def wyodrębnijPlanLekcji(
             "kategoria": kategoria,
             "url": url,
             "identyfikator": identyfikator,
+            "wygenerowano": wygenerowano,
             "data": data,
             "plan": plan
         }

@@ -15,6 +15,7 @@ from pydantic import BaseModel
 
 class Zastepstwo(BaseModel):
     zidentyfikowane: bool
+    grupa: str | None
     nauczyciel: str
     lekcja: int | None
     opis: str | None

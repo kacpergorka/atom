@@ -40,7 +40,10 @@ async def pobierzZawartośćStrony(
     try:
         async with atom.get(url) as odpowiedź:
             odpowiedź.raise_for_status()
-            tekst = await odpowiedź.text(encoding=kodowanie, errors="ignore")
+            tekst = await odpowiedź.text(
+                encoding=kodowanie,
+                errors="ignore"
+            )
 
             return BeautifulSoup(tekst, "html.parser")
     except asyncio.TimeoutError:

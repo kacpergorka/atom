@@ -457,12 +457,10 @@ async def wyodrębnijZastępstwa(
                     nazwaNauczyciela = aktualnyNauczyciel or ", ".join(wyodrębnieniNauczyciele) or "Nieznany"
                     wpisyZastępstw.append({
                         "zidentyfikowane": zidentyfikowane,
+                        "grupa": None,
                         "nauczyciel": nazwaNauczyciela,
                         "lekcja": int(lekcja) if sprawdźPrzydatne(lekcja, "Lekcja") else None,
-                        "opis": (
-                            opis.split("-", 1)[1].strip() if sprawdźPrzydatne(opis, "Opis") and "-" in opis and (wybranyOddział or wybranyNauczyciel)
-                            else opis if sprawdźPrzydatne(opis, "Opis") else None
-                        ),
+                        "opis": opis if sprawdźPrzydatne(opis, "Opis") else None,
                         "zastepca": zastępca if sprawdźPrzydatne(zastępca, "Zastępca") else None,
                         "uwagi": uwagi if sprawdźPrzydatne(uwagi, "Uwagi") else None
                     })
