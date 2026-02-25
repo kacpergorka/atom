@@ -427,8 +427,8 @@ async def wyodrębnijPlanLekcji(
         nazwa = None
         wygenerowano = None
         data = {
-            "od": None,
-            "do": None
+            "obowiazuje": None,
+            "wygasa": None
         }
         wyniki = []
 
@@ -454,10 +454,10 @@ async def wyodrębnijPlanLekcji(
 
             if tekst.startswith("Obowiązuje"):
                 if "od" in tekst:
-                    data["od"] = tekst.split("od", 1)[1].split("do", 1)[0].strip()
+                    data["obowiazuje"] = tekst.split("od", 1)[1].split("do", 1)[0].strip()
 
                 if "do" in tekst:
-                    data["do"] = tekst.split("do", 1)[1].strip()
+                    data["wygasa"] = tekst.split("do", 1)[1].strip()
 
                 break
 
@@ -500,7 +500,7 @@ async def wyodrębnijPlanLekcji(
                 if not godziny:
                     godziny = komórki[1].get_text(strip=True).replace(" ", "")
 
-                od, do = godziny.split("-", 1)
+                początek, koniec = godziny.split("-", 1)
 
                 lekcje = wyczyśćKomórkę(td, dzień, numer, nazwa)
                 if not lekcje:
@@ -508,8 +508,8 @@ async def wyodrębnijPlanLekcji(
 
                 plan[dzień].append({
                     "numer": numer,
-                    "od": od,
-                    "do": do,
+                    "poczatek": początek,
+                    "koniec": koniec,
                     "lekcje": lekcje
                 })
 

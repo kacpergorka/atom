@@ -62,8 +62,8 @@ class Listy(TypedDict):
 # Struktury planu lekcji
 
 class Data(TypedDict):
-    od: str | None
-    do: str | None
+    obowiazuje: str | None
+    wygasa: str | None
 
 class EncjaPlanu(TypedDict):
     tekst: str | None
@@ -88,8 +88,8 @@ Lekcja = LekcjaStandardowa | LekcjaNiestandardowa
 
 class WpisPlanu(TypedDict):
     numer: int
-    od: str
-    do: str
+    poczatek: str
+    koniec: str
     lekcje: list[Lekcja]
 
 PlanTygodniowy = dict[str, list[WpisPlanu]]

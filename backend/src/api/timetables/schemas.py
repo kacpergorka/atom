@@ -15,8 +15,8 @@ from pydantic import BaseModel
 from typing import Literal, Union
 
 class Data(BaseModel):
-    od: str | None
-    do: str | None
+    obowiazuje: str | None
+    wygasa: str | None
 
 
 class EncjaPlanu(BaseModel):
@@ -42,8 +42,8 @@ Lekcja = Union[LekcjaStandardowa, LekcjaNiestandardowa]
 
 class WpisPlanu(BaseModel):
     numer: int
-    od: str
-    do: str
+    poczatek: str
+    koniec: str
     lekcje: list[Lekcja]
 
 PlanTygodniowy = dict[str, list[WpisPlanu]]
