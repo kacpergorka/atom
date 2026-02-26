@@ -1,5 +1,10 @@
+# Pliki systemowe macOS
 .DS_Store
-*.json
-xcuserdata/
+
+# Prywatna konfiguracja, logi i pliki tymczasowe środowiska Python
 __pycache__/
 logs/
+*.json
+
+# Dane użytkownika generowane przez Xcode
+xcuserdata/

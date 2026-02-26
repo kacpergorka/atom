@@ -44,14 +44,14 @@ class Konfiguracja(TypedDict):
 
 # Struktury list oddziałów, nauczycieli i sal
 
-class EncjaWartościListy(TypedDict):
+class ElementListy(TypedDict):
     url: str
     identyfikator: str
     rozwiniecie: str
 
-ListaOddziałów = dict[str, EncjaWartościListy]
-ListaNauczycieli = dict[str, EncjaWartościListy]
-ListaSal = dict[str, EncjaWartościListy]
+ListaOddziałów = dict[str, ElementListy]
+ListaNauczycieli = dict[str, ElementListy]
+ListaSal = dict[str, ElementListy]
 
 class Listy(TypedDict):
     oddzialy: ListaOddziałów
@@ -65,7 +65,8 @@ class Data(TypedDict):
     obowiazuje: str | None
     wygasa: str | None
 
-class EncjaPlanu(TypedDict):
+
+class ElementPlanu(TypedDict):
     tekst: str | None
     url: str | None
     identyfikator: str | None
@@ -80,9 +81,9 @@ class LekcjaStandardowa(TypedDict):
     standard: Literal[True]
     przedmiot: str
     grupa: str | None
-    nauczyciel: EncjaPlanu
-    sala: EncjaPlanu
-    oddzialy: list[EncjaPlanu]
+    nauczyciel: ElementPlanu
+    sala: ElementPlanu
+    oddzialy: list[ElementPlanu]
 
 Lekcja = LekcjaStandardowa | LekcjaNiestandardowa
 

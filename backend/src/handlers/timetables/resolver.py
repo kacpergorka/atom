@@ -21,7 +21,7 @@ import aiohttp
 
 # Wewnętrzne importy
 from src.classes.semaphore import semafor
-from src.classes.types import EncjaPlanu
+from src.classes.types import ElementPlanu
 from src.handlers.configuration import konfiguracja
 from src.handlers.timetables.helpers import (
     wydobądźIdentyfikator,
@@ -36,7 +36,7 @@ async def uzupełnijNauczyciela(
     dniTygodnia: list[str],
     dzień: str,
     numer: int
-) -> EncjaPlanu:
+) -> ElementPlanu:
     """
     Uzupełnia dane nauczyciela dla konkretnej lekcji w planie oddziału na podstawie URL do strony planu lekcji sali.
 
@@ -48,7 +48,7 @@ async def uzupełnijNauczyciela(
         numer (int): Numer lekcji z brakującym nauczycielem w danym dniu tygodnia.
 
     Returns:
-        EncjaPlanu: Słownik zawierający dane nauczyciela.
+        ElementPlanu: Słownik zawierający dane nauczyciela.
     """
 
     try:
@@ -58,13 +58,13 @@ async def uzupełnijNauczyciela(
 
         if not katalog or not kodowanie:
             logowanie.warning(
-                "Funkcja nie otrzymała wystarczającej liczby potrzebnych danych. Zwracanie pustego słownika encji."
+                "Funkcja nie otrzymała wystarczającej liczby potrzebnych danych. Zwracanie pustego słownika elementu."
             )
             return zwróćPustySłownik()
 
         if urlparse(url).netloc != urlparse(katalog).netloc:
             logowanie.warning(
-                "Otrzymany URL nie zgadza się z wartością URL znajdującego się w pliku konfiguracyjnym. Zwracanie pustego słownika encji."
+                "Otrzymany URL nie zgadza się z wartością URL znajdującego się w pliku konfiguracyjnym. Zwracanie pustego słownika elementu."
             )
             return zwróćPustySłownik()
 
@@ -80,7 +80,7 @@ async def uzupełnijNauczyciela(
         tabela = zawartośćStrony.select_one("table.tabela")
         if not tabela:
             logowanie.warning(
-                "Nie znaleziono tabeli planu lekcji. Zwracanie pustego słownika encji."
+                "Nie znaleziono tabeli planu lekcji. Zwracanie pustego słownika elementu."
             )
             return zwróćPustySłownik()
 

@@ -45,7 +45,7 @@ class Atom:
                 headers={"User-Agent": f"Atom API/{wersja} (https://github.com/kacpergorka/atom)"}
             )
         except Exception as e:
-            logowanie.critical(
+            logowanie.exception(
                 f"Nie udało się utworzyć sesji HTTP. Więcej informacji: {e}"
             )
             raise

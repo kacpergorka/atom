@@ -12,7 +12,6 @@
 
 # Standardowe biblioteki
 import asyncio
-from typing import Union
 from urllib.parse import (
     urljoin,
     urlparse
@@ -27,7 +26,7 @@ from bs4 import (
 
 # Wewnętrzne importy
 from src.classes.types import (
-    EncjaPlanu,
+    ElementPlanu,
     Lekcja,
     LekcjaStandardowa,
     LekcjaNiestandardowa,
@@ -62,7 +61,7 @@ async def wyodrębnijPlanLekcji(
         dzieńSkróconych (str | None): Dzień tygodnia, dla którego obowiązuje skrócony rozkład zajęć.
         grupy (list[str] | None): Lista oznaczeń określających grupę przedmiotów.
         przedmiotyDodatkowe (dict[str, bool] | None): Słownik przedmiotów dodatkowych przeznaczonych do filtracji.
-        url (str): Adres strony internetowej planu lekcji użyty do pobrania jej zawartości.
+        url (str | None): Adres strony internetowej planu lekcji użyty do pobrania jej zawartości.
 
     Returns:
         PlanLekcji | None: Słownik zawierający ustrukturyzowany plan lekcji.
@@ -106,44 +105,48 @@ async def wyodrębnijPlanLekcji(
 
         return None
 
-    def normalizujEncje(etykieta: Tag) -> str:
+    def normalizujElementy(etykieta: Tag) -> str:
         """
-        Normalizuje nazwę encji dołączając ewentualny dopisek, który jej dotyczy.
+        Normalizuje nazwę elementu dołączając ewentualny dopisek, który jej dotyczy.
 
         Args:
             etykieta (Tag): Znacznik HTML reprezentujący nazwę przedmiotu lub oddziału.
 
         Returns:
-            str: Znormalizowana nazwa encji.
+            str: Znormalizowana nazwa elementu.
         """
 
-        encja = etykieta.get_text(strip=True)
+        element = etykieta.get_text(strip=True)
 
         dopisek = etykieta.next_sibling
         if isinstance(dopisek, str) and dopisek.strip().startswith(("-", "/")):
-            encja += dopisek.strip()
+            element += dopisek.strip()
 
-        return encja
+        return element
 
-    def wydobądźEncje(fragment: BeautifulSoup) -> tuple[EncjaPlanu, EncjaPlanu, list[EncjaPlanu]]:
+    def wydobądźElementy(
+        fragment: BeautifulSoup,
+        url: str | None
+    ) -> tuple[ElementPlanu, ElementPlanu, list[ElementPlanu]]:
         """
         Wyodrębnia informacje o nauczycielu, sali oraz oddziałach z fragmentu HTML.
 
         Args:
             fragment (BeautifulSoup): Fragment obiektu BeautifulSoup reprezentującego strukturę HTML zawierający dane pojedynczej lekcji.
+            url (str | None): Adres strony internetowej planu lekcji użyty do pobrania jej zawartości.
 
         Returns:
-            tuple[EncjaPlanu, EncjaPlanu, list[EncjaPlanu]]: Krotka słowników nauczyciela, sali i oddziałów.
+            tuple[ElementPlanu, ElementPlanu, list[ElementPlanu]]: Krotka słowników nauczyciela, sali i oddziałów.
         """
 
         katalog = konfiguracja.get("plany", {}).get("url")
         nauczyciel = zwróćPustySłownik()
         sala = zwróćPustySłownik()
-        oddziały: list[EncjaPlanu] = []
+        oddziały: list[ElementPlanu] = []
 
-        if not katalog or urlparse(url).netloc != urlparse(katalog).netloc:
+        if not katalog or not url or urlparse(url).netloc != urlparse(katalog).netloc:
             logowanie.warning(
-                "Otrzymany URL nie zgadza się z wartością URL znajdującego się w pliku konfiguracyjnym. Zwracanie nieuzupełnionych encji."
+                "Otrzymany URL nie zgadza się z wartością URL znajdującego się w pliku konfiguracyjnym. Zwracanie nieuzupełnionych elementów."
             )
             return nauczyciel, sala, oddziały
 
@@ -152,7 +155,7 @@ async def wyodrębnijPlanLekcji(
             urlOddziału = urljoin(katalog, hrefOddziału) if katalog and hrefOddziału else None
 
             oddziały.append({
-                "tekst": normalizujEncje(etykietaOddziału),
+                "tekst": normalizujElementy(etykietaOddziału),
                 "url": urlOddziału,
                 "identyfikator": wydobądźIdentyfikator(urlOddziału)
             })
@@ -181,7 +184,7 @@ async def wyodrębnijPlanLekcji(
 
         return nauczyciel, sala, oddziały
 
-    def podzielKomórkę(td: Tag) -> list[list[Union[Tag, str]]]:
+    def podzielKomórkę(td: Tag) -> list[list[Tag | str]]:
         """
         Dzieli zawartość komórki tabeli na logiczne bloki oddzielone znacznikami `<br>`.
 
@@ -189,11 +192,11 @@ async def wyodrębnijPlanLekcji(
             td (Tag): Znacznik `<td>` reprezentujący pojedynczą komórkę planu lekcji.
 
         Returns:
-            list[list[Union[Tag, str]]]: Lista bloków, gdzie każdy blok jest listą elementów HTML lub tekstu.
+            list[list[Tag | str]]: Lista bloków, gdzie każdy blok jest listą elementów HTML lub tekstu.
         """
 
-        bloki: list[list[Union[Tag, str]]] = []
-        aktualny: list[Union[Tag, str]] = []
+        bloki: list[list[Tag | str]] = []
+        aktualny: list[Tag | str] = []
 
         for element in td.children:
             if getattr(element, "name", None) == "br":
@@ -250,7 +253,7 @@ async def wyodrębnijPlanLekcji(
 
         przedmioty = []
         for etykieta in fragment.select(".p"):
-            nazwa = normalizujEncje(etykieta)
+            nazwa = normalizujElementy(etykieta)
 
             if nazwa:
                 przedmioty.append(nazwa)
@@ -259,8 +262,8 @@ async def wyodrębnijPlanLekcji(
 
     def sprawdźNauczyciela(
         nazwa: str | None,
-        nauczyciel: EncjaPlanu,
-        sala: EncjaPlanu,
+        nauczyciel: ElementPlanu,
+        sala: ElementPlanu,
         rozwinięciaOddziałów: set[str]
     ) -> bool:
         """
@@ -268,8 +271,8 @@ async def wyodrębnijPlanLekcji(
 
         Args:
             nazwa (str | None): Nazwa aktualnie przetwarzanego planu lekcji.
-            nauczyciel (EncjaPlanu): Dane nauczyciela.
-            sala (EncjaPlanu): Dane sali.
+            nauczyciel (ElementPlanu): Dane nauczyciela.
+            sala (ElementPlanu): Dane sali.
             rozwinięciaOddziałów (set[str]): Zbiór rozwiniętych nazw oddziałów.
 
         Returns:
@@ -290,7 +293,8 @@ async def wyodrębnijPlanLekcji(
         rozwinięciaOddziałów: set[str],
         potrzebniNauczyciele: set[tuple[str | None, str, int]],
         grupy: list[str] | None,
-        przedmiotyDodatkowe: dict[str, bool] | None
+        przedmiotyDodatkowe: dict[str, bool] | None,
+        url: str | None
     ) -> list[LekcjaStandardowa]:
         """
         Parsuje standardowe lekcje z fragmentu komórki planu lekcji.
@@ -304,13 +308,14 @@ async def wyodrębnijPlanLekcji(
             potrzebniNauczyciele (set[tuple[str | None, str, int]]): Zbiór lekcji, dla których należy uzupełnić dane nauczyciela.
             grupy (list[str] | None): Lista oznaczeń określających grupę przedmiotów.
             przedmiotyDodatkowe (dict[str, bool] | None): Słownik przedmiotów dodatkowych przeznaczonych do filtracji.
+            url (str | None): Adres strony internetowej planu lekcji użyty do pobrania jej zawartości.
 
         Returns:
             list[LekcjaStandardowa]: Lista słowników opisujących lekcje standardowe.
         """
 
         lekcje: list[LekcjaStandardowa] = []
-        nauczyciel, sala, oddziały = wydobądźEncje(fragment)
+        nauczyciel, sala, oddziały = wydobądźElementy(fragment, url)
         przedmioty = pobierzPrzedmioty(fragment)
         aktywnaLekcja: LekcjaStandardowa | None = None
 
@@ -358,7 +363,12 @@ async def wyodrębnijPlanLekcji(
         td: Tag,
         dzień: str,
         numer: int,
-        nazwa: str | None
+        nazwa: str | None,
+        rozwinięciaOddziałów: set[str],
+        potrzebniNauczyciele: set[tuple[str | None, str, int]],
+        grupy: list[str] | None,
+        przedmiotyDodatkowe: dict[str, bool] | None,
+        url: str | None
     ) -> list[Lekcja]:
         """
         Czyści, interpretuje i strukturyzuje zawartość pojedynczej komórki tabeli planu lekcji.
@@ -368,6 +378,11 @@ async def wyodrębnijPlanLekcji(
             dzień (str): Dzień tygodnia, dla którego przetwarzana jest komórka.
             numer (int): Numer lekcji w danym dniu tygodnia.
             nazwa (str | None): Nazwa aktualnie przetwarzanego planu lekcji.
+            rozwinięciaOddziałów (set[str]): Zbiór rozwiniętych nazw oddziałów.
+            potrzebniNauczyciele (set[tuple[str | None, str, int]]): Zbiór lekcji, dla których należy uzupełnić dane nauczyciela.
+            grupy (list[str] | None): Lista oznaczeń określających grupę przedmiotów.
+            przedmiotyDodatkowe (dict[str, bool] | None): Słownik przedmiotów dodatkowych przeznaczonych do filtracji.
+            url (str | None): Adres strony internetowej planu lekcji użyty do pobrania jej zawartości.
 
         Returns:
             list[Lekcja]: Lista słowników opisujących lekcje znajdujące się w danej komórce tabeli.
@@ -395,7 +410,7 @@ async def wyodrębnijPlanLekcji(
                 lekcje.append(niestandardowa)
                 continue
 
-            lekcje.extend(sparsujLekcje(fragment, dzień, numer, nazwa, rozwinięciaOddziałów, potrzebniNauczyciele, grupy, przedmiotyDodatkowe))
+            lekcje.extend(sparsujLekcje(fragment, dzień, numer, nazwa, rozwinięciaOddziałów, potrzebniNauczyciele, grupy, przedmiotyDodatkowe, url))
 
         return lekcje
 
@@ -450,22 +465,20 @@ async def wyodrębnijPlanLekcji(
                 td.get_text(" ", strip=True)
                 .replace(":", "")
                 .replace("r.", "")
+                .lower()
             )
 
-            if tekst.startswith("Obowiązuje"):
+            if tekst.startswith("obowiązuje"):
                 if "od" in tekst:
                     data["obowiazuje"] = tekst.split("od", 1)[1].split("do", 1)[0].strip()
 
                 if "do" in tekst:
                     data["wygasa"] = tekst.split("do", 1)[1].strip()
 
-                break
-
-        for td in zawartośćStrony.find_all("td"):
-            tekst = td.get_text(" ", strip=True).lower()
-
             if tekst.startswith("wygenerowano"):
                 wygenerowano = tekst.replace("wygenerowano", "").strip().split()[0]
+
+            if data["obowiazuje"] is not None and wygenerowano is not None:
                 break
 
         if not tabela:
@@ -502,7 +515,7 @@ async def wyodrębnijPlanLekcji(
 
                 początek, koniec = godziny.split("-", 1)
 
-                lekcje = wyczyśćKomórkę(td, dzień, numer, nazwa)
+                lekcje = wyczyśćKomórkę(td, dzień, numer, nazwa, rozwinięciaOddziałów, potrzebniNauczyciele, grupy, przedmiotyDodatkowe, url)
                 if not lekcje:
                     continue
 
@@ -520,15 +533,26 @@ async def wyodrębnijPlanLekcji(
 
             wyniki.extend(
                 await asyncio.gather(*[
-                    uzupełnijNauczyciela(atom, url, dniTygodnia, dzień, numer)
-                    for url, dzień, numer in paczka
+                    uzupełnijNauczyciela(atom, urlSali, dniTygodnia, dzień, numer)
+                    for urlSali, dzień, numer in paczka
                 ])
             )
 
-        słownikNauczycieli: dict[tuple[str, str, int], EncjaPlanu] = {
-            (url, dzień, numer): nauczyciel
-            for (url, dzień, numer), nauczyciel in zip(listaPotrzebnychNauczycieli, wyniki)
-        }
+        if len(wyniki) != len(listaPotrzebnychNauczycieli):
+            logowanie.error(
+                f"Wystąpiła niezgodność w liczbie wyników uzupełniania nauczycieli (oczekiwano: {len(listaPotrzebnychNauczycieli)}, lecz otrzymano: {len(wyniki)})."
+            )
+
+        słownikNauczycieli: dict[tuple[str, str, int], ElementPlanu] = {}
+
+        for indeks, klucz in enumerate(listaPotrzebnychNauczycieli):
+            if indeks >= len(wyniki):
+                break
+
+            urlSali, dzieńLekcji, numerLekcji = klucz
+            nauczyciel = wyniki[indeks]
+
+            słownikNauczycieli[(urlSali, dzieńLekcji, numerLekcji)] = nauczyciel
 
         for dzień, wpisy in plan.items():
             for wpis in wpisy:

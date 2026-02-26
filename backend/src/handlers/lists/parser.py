@@ -84,8 +84,8 @@ def wyodrębnijListy(
 
         for link in linki:
             href = link.get("href", "")
-            urlEncji = urljoin(katalog, href)
-            ścieżka = urlparse(urlEncji).path
+            urlElementu = urljoin(katalog, href)
+            ścieżka = urlparse(urlElementu).path
             identyfikator: str = ""
 
             surowyTekst = link.get_text(" ", strip=True)
@@ -108,7 +108,7 @@ def wyodrębnijListy(
 
                     if nazwa not in oddziały:
                         oddziały[nazwa] = {
-                            "url": urlEncji,
+                            "url": urlElementu,
                             "identyfikator": identyfikator,
                             "rozwiniecie": rozwinięcieOddziału
                         }
@@ -121,7 +121,7 @@ def wyodrębnijListy(
 
                     if nazwa not in nauczyciele:
                         nauczyciele[nazwa] = {
-                            "url": urlEncji,
+                            "url": urlElementu,
                             "identyfikator": identyfikator,
                             "rozwiniecie": surowyTekst
                         }
@@ -134,7 +134,7 @@ def wyodrębnijListy(
 
                     if nazwa not in sale:
                         sale[nazwa] = {
-                            "url": urlEncji,
+                            "url": urlElementu,
                             "identyfikator": identyfikator,
                             "rozwiniecie": surowyTekst
                         }

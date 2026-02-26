@@ -143,6 +143,7 @@ async def wyodrębnijZastępstwa(
             bool: True, jeśli wartość jest niepusta i różna od etykiety, False w przeciwnym razie.
         """
 
+        wartość = wartość.strip()
         return bool(wartość and wartość.lower() != etykieta.lower())
 
     def sprawdźOddział(

@@ -12,14 +12,14 @@
 
 # Standardowe biblioteki
 from pydantic import BaseModel
-from typing import Literal, Union
+from typing import Literal
 
 class Data(BaseModel):
     obowiazuje: str | None
     wygasa: str | None
 
 
-class EncjaPlanu(BaseModel):
+class ElementPlanu(BaseModel):
     tekst: str | None
     url: str | None
     identyfikator: str | None
@@ -34,11 +34,11 @@ class LekcjaStandardowa(BaseModel):
     standard: Literal[True]
     przedmiot: str
     grupa: str | None
-    nauczyciel: EncjaPlanu
-    sala: EncjaPlanu
-    oddzialy: list[EncjaPlanu]
+    nauczyciel: ElementPlanu
+    sala: ElementPlanu
+    oddzialy: list[ElementPlanu]
 
-Lekcja = Union[LekcjaStandardowa, LekcjaNiestandardowa]
+Lekcja = LekcjaStandardowa | LekcjaNiestandardowa
 
 class WpisPlanu(BaseModel):
     numer: int

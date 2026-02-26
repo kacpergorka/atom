@@ -14,7 +14,7 @@
 from urllib.parse import urlparse
 
 # Wewnętrzne importy
-from src.classes.types import EncjaPlanu
+from src.classes.types import ElementPlanu
 
 def wydobądźIdentyfikator(url: str | None) -> str | None:
     """
@@ -39,12 +39,12 @@ def wydobądźIdentyfikator(url: str | None) -> str | None:
     return None
 
 
-def zwróćPustySłownik() -> EncjaPlanu:
+def zwróćPustySłownik() -> ElementPlanu:
     """
-    Zwraca pusty słownik danych wykorzystywany jako reprezentacja encji.
+    Zwraca pusty słownik danych wykorzystywany jako reprezentacja elementu.
 
     Returns:
-        EncjaPlanu: Pusty słownik danych.
+        ElementPlanu: Pusty słownik danych.
     """
 
     return {
