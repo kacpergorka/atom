@@ -20,7 +20,7 @@ from src.api.endpoints.universal.lists.service import pobierzListy
 
 router = APIRouter(
     prefix="/v1/listy",
-    tags=["UniwersalneListy"],
+    tags=["Listy"],
 )
 
 @router.get(
