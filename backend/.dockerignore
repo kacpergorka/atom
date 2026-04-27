@@ -1,0 +1,14 @@
+logs/
+.DS_Store
+
+.git
+.gitignore
+
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd

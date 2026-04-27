@@ -1,0 +1,7 @@
+aiohttp>=3.13.5
+beautifulsoup4>=4.14.3
+fastapi>=0.136.1
+pydantic>=2.13.3
+redis>=7.4.0
+tzdata>=2026.2
+uvicorn>=0.46.0

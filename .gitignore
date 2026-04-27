@@ -1,0 +1,11 @@
+# Pliki systemowe macOS
+.DS_Store
+
+# Prywatna konfiguracja, logi i pliki tymczasowe środowiska Python
+backend/**/__pycache__/
+backend/**/logs/
+backend/**/*.json
+backend/**/*.old
+
+# Dane użytkownika generowane przez Xcode
+frontend/**/xcuserdata/
