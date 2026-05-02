@@ -14,9 +14,8 @@ from pydantic import BaseModel
 class AtomoweZastepstwo(BaseModel):
     nauczyciel: str
     lekcja: int | None
-    opis: str | None
-    zastepca: str | None
-    uwagi: str | None
+    treść: str | None
+    stopka: str | None
 
 
 class AtomoweZastepstwa(BaseModel):

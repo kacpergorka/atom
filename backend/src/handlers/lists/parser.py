@@ -23,6 +23,7 @@ from bs4 import BeautifulSoup
 # Wewnętrzne importy
 from src.classes.types.lists import Listy
 from src.handlers.configuration import konfiguracja
+from src.handlers.helpers import posortujNauczycieli
 from src.handlers.lists.resolver import uzupełnijBrakująceOddziały
 from src.handlers.logging import logowanie
 
@@ -42,6 +43,19 @@ async def wyodrębnijListy(
     Returns:
         Listy: Słownik zawierający listy oddziałów, nauczycieli oraz sal.
     """
+
+    def zwróćPusteListy() -> Listy:
+        """
+        Zwraca pustą strukturę list w standardowym formacie.
+
+        Returns:
+            Zastępstwa: Pusta struktura list.
+        """
+        return {
+            "oddzialy": [],
+            "nauczyciele": [],
+            "sale": [],
+        }
 
     def wyodrębnijNumerOddziału(identyfikator: str | None) -> int | None:
         """
@@ -89,48 +103,11 @@ async def wyodrębnijListy(
             if numer not in numery
         ]
 
-    def posortujNauczycieli(element: dict[str, str]) -> str:
-        """
-        Zwraca klucz sortowania dla nauczyciela na podstawie jego nazwiska.
-
-        Args:
-            element (dict[str, str]): Słownik reprezentujący nauczyciela.
-
-        Returns:
-            str: Przekształcony ciąg znaków używany jako klucz sortowania.
-        """
-
-        tekst = element.get("rozwiniecie", "")
-
-        if "." in tekst:
-            tekstPoKropce = tekst.split(".", 1)[1]
-            nazwisko = tekstPoKropce.split("(", 1)[0].strip()
-        else:
-            nazwisko = tekst.strip()
-
-        mapaPolskichZnaków = str.maketrans({
-            "ą": "a~",
-            "ć": "c~",
-            "ę": "e~",
-            "ł": "l~",
-            "ń": "n~",
-            "ó": "o~",
-            "ś": "s~",
-            "ź": "z~",
-            "ż": "z~~",
-        })
-
-        return nazwisko.lower().translate(mapaPolskichZnaków)
-
     if not isinstance(url, str) or not url.startswith(("http://", "https://")):
         logowanie.warning(
             "Nieprawidłowy URL wejściowy. Zwracanie pustych zawartości."
         )
-        return {
-            "oddzialy": [],
-            "nauczyciele": [],
-            "sale": [],
-        }
+        return zwróćPusteListy()
 
     try:
         linki = zawartośćStrony.find_all("a", href=True)
@@ -143,11 +120,7 @@ async def wyodrębnijListy(
             logowanie.warning(
                 "Otrzymany URL nie zgadza się z wartością URL znajdującego się w pliku konfiguracyjnym. Zwracanie pustych zawartości."
             )
-            return {
-                "oddzialy": [],
-                "nauczyciele": [],
-                "sale": [],
-            }
+            return zwróćPusteListy()
 
         for link in linki:
             href = link.get("href", "")
@@ -223,8 +196,4 @@ async def wyodrębnijListy(
         logowanie.exception(
             f"Wystąpił błąd podczas przetwarzania HTML listy. Więcej informacji: {e}"
         )
-        return {
-            "oddzialy": [],
-            "nauczyciele": [],
-            "sale": [],
-        }
+        return zwróćPusteListy()

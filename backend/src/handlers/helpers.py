@@ -9,7 +9,9 @@
 #
 
 # Standardowe biblioteki
+from collections.abc import Mapping
 import re
+from typing import Any
 
 # Zewnętrzne biblioteki
 from bs4 import (
@@ -20,6 +22,60 @@ from bs4 import (
 
 # Wewnętrzne importy
 from src.handlers.configuration import konfiguracja
+
+def posortujNauczycieli(element: Mapping[str, Any] | str | None) -> str:
+    """
+    Zwraca klucz sortowania dla nauczyciela na podstawie jego nazwiska.
+
+    Args:
+        element (Mapping[str, Any] | str | None): Słownik reprezentujący nauczyciela lub bezpośrednia nazwa nauczyciela.
+
+    Returns:
+        str: Przekształcony ciąg znaków używany jako klucz sortowania.
+    """
+
+    def wyodrębnijNazwiskoNauczyciela(tekst: str) -> str:
+        """
+        Wyodrębnia nazwisko nauczyciela z przekazanego tekstu.
+
+        Args:
+            tekst (str): Tekst zawierający imię i nazwisko nauczyciela lub inne oznaczenia.
+
+        Returns:
+            str: Nazwisko nauczyciela lub przetworzony fragment tekstu w przypadku niestandardowego formatu.
+        """
+
+        tekst = re.sub(r"\s+", " ", tekst).strip()
+        tekst = tekst.split("(", 1)[0].strip()
+        części = tekst.split()
+
+        for część in części:
+            if część.lower() == "vacat":
+                return część
+
+        if "." in tekst:
+            return tekst.split(".", 1)[1].strip()
+
+        if len(części) >= 2:
+            return części[-1]
+
+        return tekst
+
+    tekst = ""
+
+    if isinstance(element, Mapping):
+        for klucz in ("nauczyciel", "nazwa", "rozwiniecie"):
+            wartość = element.get(klucz)
+
+            if isinstance(wartość, str) and wartość.strip():
+                tekst = wartość
+                break
+
+    elif isinstance(element, str):
+        tekst = element
+
+    return wyodrębnijNazwiskoNauczyciela(tekst).lower()
+
 
 def sprawdźGrupę(
     grupa: str | None,
@@ -58,6 +114,7 @@ def sprawdźGrupę(
         ]
 
     return not wybraneGrupy or grupa in wybraneGrupy
+
 
 def wyczyśćTekst(
     węzeł: Tag | str | None,

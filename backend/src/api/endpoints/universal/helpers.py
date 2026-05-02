@@ -37,25 +37,42 @@ def normalizujIdentyfikator(identyfikator: str | None) -> str:
     return znormalizowany
 
 
-def zbudujPrzedmiotyDodatkowe(
-    religia: bool,
-    edukacjaZdrowotna: bool
-) -> dict[str, bool]:
+def sprawdźIstnienieElementu(
+    identyfikator: str,
+    listaOddziałów: list[UniwersalnyElementListy],
+    listaNauczycieli: list[UniwersalnyElementListy],
+    listaSal: list[UniwersalnyElementListy]
+) -> None:
     """
-    Buduje słownik przedmiotów dodatkowych na podstawie przekazanych flag.
+    Sprawdza, czy identyfikator wskazuje istniejący element list planu lekcji.
 
     Args:
-        religia (bool): Flaga informująca, czy uwzględniać lekcje religii w planie lekcji.
-        edukacjaZdrowotna (bool): Flaga informująca, czy uwzględniać lekcje edukacji zdrowotnej w planie lekcji.
+        identyfikator (str): Identyfikator oddziału, nauczyciela lub sali.
+        listaOddziałów (list[UniwersalnyElementListy]): Lista wszystkich oddziałów.
+        listaNauczycieli (list[UniwersalnyElementListy]): Lista wszystkich nauczycieli.
+        listaSal (list[UniwersalnyElementListy]): Lista wszystkich sal.
 
-    Returns:
-        dict[str, bool]: Słownik z kluczami nazw przedmiotów i wartościami logicznymi.
+    Raises:
+        NieprawidłowyIdentyfikator: Gdy prefiks jest nieobsługiwany lub element nie istnieje.
     """
 
-    return {
-        "religia": religia,
-        "zdrowotna": edukacjaZdrowotna
-    }
+    identyfikator = normalizujIdentyfikator(identyfikator)
+    prefiks = identyfikator[0]
+
+    if prefiks == "o":
+        dane = listaOddziałów
+    elif prefiks == "n":
+        dane = listaNauczycieli
+    elif prefiks == "s":
+        dane = listaSal
+    else:
+        raise NieprawidłowyIdentyfikator
+
+    for element in dane:
+        if element.get("identyfikator") == identyfikator:
+            return
+
+    raise NieprawidłowyIdentyfikator
 
 
 def wyszukajElement(
@@ -97,39 +114,22 @@ def wyszukajElement(
     raise NieprawidłowyIdentyfikator
 
 
-def sprawdźIstnienieElementu(
-    identyfikator: str,
-    listaOddziałów: list[UniwersalnyElementListy],
-    listaNauczycieli: list[UniwersalnyElementListy],
-    listaSal: list[UniwersalnyElementListy]
-) -> None:
+def zbudujPrzedmiotyDodatkowe(
+    religia: bool,
+    edukacjaZdrowotna: bool
+) -> dict[str, bool]:
     """
-    Sprawdza, czy identyfikator wskazuje istniejący element list planu lekcji.
+    Buduje słownik przedmiotów dodatkowych na podstawie przekazanych flag.
 
     Args:
-        identyfikator (str): Identyfikator oddziału, nauczyciela lub sali.
-        listaOddziałów (list[UniwersalnyElementListy]): Lista wszystkich oddziałów.
-        listaNauczycieli (list[UniwersalnyElementListy]): Lista wszystkich nauczycieli.
-        listaSal (list[UniwersalnyElementListy]): Lista wszystkich sal.
+        religia (bool): Flaga informująca, czy uwzględniać lekcje religii w planie lekcji.
+        edukacjaZdrowotna (bool): Flaga informująca, czy uwzględniać lekcje edukacji zdrowotnej w planie lekcji.
 
-    Raises:
-        NieprawidłowyIdentyfikator: Gdy prefiks jest nieobsługiwany lub element nie istnieje.
+    Returns:
+        dict[str, bool]: Słownik z kluczami nazw przedmiotów i wartościami logicznymi.
     """
 
-    identyfikator = normalizujIdentyfikator(identyfikator)
-    prefiks = identyfikator[0]
-
-    if prefiks == "o":
-        dane = listaOddziałów
-    elif prefiks == "n":
-        dane = listaNauczycieli
-    elif prefiks == "s":
-        dane = listaSal
-    else:
-        raise NieprawidłowyIdentyfikator
-
-    for element in dane:
-        if element.get("identyfikator") == identyfikator:
-            return
-
-    raise NieprawidłowyIdentyfikator
+    return {
+        "religia": religia,
+        "zdrowotna": edukacjaZdrowotna
+    }

@@ -63,6 +63,7 @@ async def wyodrębnijPlanLekcji(
     Returns:
         PlanLekcji: Słownik zawierający ustrukturyzowany plan lekcji.
     """
+
     def zwróćPustyPlanLekcji() -> PlanLekcji:
         """
         Zwraca pustą strukturę planu lekcji w standardowym formacie.
@@ -81,47 +82,27 @@ async def wyodrębnijPlanLekcji(
                 "obowiazuje": None,
                 "wygasa": None
             },
+            "wolne": False,
             "zastepstwa": False,
             "plan": None
         }
 
-    def wyodrębnijDniTygodnia(tabela: Tag) -> list[str]:
+    def zwróćPustąLekcję(tekst: str) -> Lekcja:
         """
-        Wyodrębnia listę dni tygodnia z nagłówka tabeli planu lekcji.
-
-        Args:
-            tabela (Tag): Znacznik `<table>` zawierający plan lekcji.
+        Zwraca pustą strukturę lekcji w standardowym formacie.
 
         Returns:
-            list[str]: Lista nazw dni tygodnia w kolejności ich występowania w tabeli
+            PlanLekcji: Pusta struktura lekcji.
         """
 
-        nagłówek = tabela.select_one("tr")
-        if not nagłówek:
-            return []
-
-        th = nagłówek.find_all("th")
-
-        return [komórka.get_text(strip=True) for komórka in th[2:]]
-
-    def wyodrębnijGrupę(tekst: str) -> str | None:
-        """
-        Wyodrębnia oznaczenie grupy z tekstu przedmiotu.
-
-        Args:
-            tekst (str): Tekst przedmiotu, z którego ma zostać wyodrębniona grupa.
-
-        Returns:
-            str | None: Oznaczenie grupy.
-        """
-
-        wzorce: list[str] = konfiguracja.get("grupy", [])
-
-        for wzorzec in wzorce:
-            if wzorzec in tekst:
-                return wzorzec
-
-        return None
+        return {
+            "przedmiot": tekst,
+            "grupa": None,
+            "nauczyciel": None,
+            "sala": None,
+            "oddzialy": None,
+            "zastepstwo": None
+        }
 
     def normalizujElementy(etykieta: Tag) -> str:
         """
@@ -202,6 +183,70 @@ async def wyodrębnijPlanLekcji(
 
         return nauczyciel, sala, oddziały
 
+    def pobierzPrzedmioty(fragment: BeautifulSoup) -> list[str]:
+        """
+        Wyodrębnia i normalizuje listę przedmiotów z fragmentu lekcji.
+
+        Args:
+            fragment (BeautifulSoup): Fragment obiektu BeautifulSoup reprezentującego strukturę HTML zawierający dane pojedynczej lekcji.
+
+        Returns:
+            list[str]: Lista znormalizowanych nazw przedmiotów.
+        """
+
+        przedmioty = []
+        for etykieta in fragment.select(".p"):
+            nazwa = normalizujElementy(etykieta)
+
+            if nazwa:
+                przedmioty.append(nazwa)
+
+        return przedmioty
+
+    def wyodrębnijGrupę(tekst: str) -> str | None:
+        """
+        Wyodrębnia oznaczenie grupy z tekstu przedmiotu.
+
+        Args:
+            tekst (str): Tekst przedmiotu, z którego ma zostać wyodrębniona grupa.
+
+        Returns:
+            str | None: Oznaczenie grupy.
+        """
+
+        wzorce: list[str] = konfiguracja.get("grupy", [])
+
+        for wzorzec in wzorce:
+            if wzorzec in tekst:
+                return wzorzec
+
+        return None
+
+    def sprawdźNauczyciela(
+        nazwa: str | None,
+        nauczyciel: ElementPlanu,
+        sala: ElementPlanu,
+        rozwinięciaOddziałów: set[str]
+    ) -> bool:
+        """
+        Sprawdza, czy dla lekcji należy później uzupełnić dane nauczyciela.
+
+        Args:
+            nazwa (str | None): Nazwa aktualnie przetwarzanego planu lekcji.
+            nauczyciel (ElementPlanu): Dane nauczyciela.
+            sala (ElementPlanu): Dane sali.
+            rozwinięciaOddziałów (set[str]): Zbiór rozwiniętych nazw oddziałów.
+
+        Returns:
+            bool: True, jeśli nauczyciel powinien zostać uzupełniony, False w przeciwnym razie.
+        """
+
+        return (
+            nazwa in rozwinięciaOddziałów
+            and nauczyciel["tekst"] is None
+            and sala["url"] is not None
+        )
+
     def podzielKomórkę(td: Tag) -> list[list[Tag | str]]:
         """
         Dzieli zawartość komórki tabeli na logiczne bloki oddzielone znacznikami `<br>`.
@@ -253,59 +298,7 @@ async def wyodrębnijPlanLekcji(
         if not tekst:
             return None
 
-        return {
-            "przedmiot": tekst,
-            "grupa": None,
-            "nauczyciel": None,
-            "sala": None,
-            "oddzialy": None,
-            "zastepstwo": None
-        }
-
-    def pobierzPrzedmioty(fragment: BeautifulSoup) -> list[str]:
-        """
-        Wyodrębnia i normalizuje listę przedmiotów z fragmentu lekcji.
-
-        Args:
-            fragment (BeautifulSoup): Fragment obiektu BeautifulSoup reprezentującego strukturę HTML zawierający dane pojedynczej lekcji.
-
-        Returns:
-            list[str]: Lista znormalizowanych nazw przedmiotów.
-        """
-
-        przedmioty = []
-        for etykieta in fragment.select(".p"):
-            nazwa = normalizujElementy(etykieta)
-
-            if nazwa:
-                przedmioty.append(nazwa)
-
-        return przedmioty
-
-    def sprawdźNauczyciela(
-        nazwa: str | None,
-        nauczyciel: ElementPlanu,
-        sala: ElementPlanu,
-        rozwinięciaOddziałów: set[str]
-    ) -> bool:
-        """
-        Sprawdza, czy dla lekcji należy później uzupełnić dane nauczyciela.
-
-        Args:
-            nazwa (str | None): Nazwa aktualnie przetwarzanego planu lekcji.
-            nauczyciel (ElementPlanu): Dane nauczyciela.
-            sala (ElementPlanu): Dane sali.
-            rozwinięciaOddziałów (set[str]): Zbiór rozwiniętych nazw oddziałów.
-
-        Returns:
-            bool: True, jeśli nauczyciel powinien zostać uzupełniony, False w przeciwnym razie.
-        """
-
-        return (
-            nazwa in rozwinięciaOddziałów
-            and nauczyciel["tekst"] is None
-            and sala["url"] is not None
-        )
+        return zwróćPustąLekcję(tekst)
 
     def sparsujLekcje(
         fragment: BeautifulSoup,
@@ -381,6 +374,47 @@ async def wyodrębnijPlanLekcji(
 
         return lekcje
 
+    def wyodrębnijDniTygodnia(tabela: Tag) -> list[str]:
+        """
+        Wyodrębnia listę dni tygodnia z nagłówka tabeli planu lekcji.
+
+        Args:
+            tabela (Tag): Znacznik `<table>` zawierający plan lekcji.
+
+        Returns:
+            list[str]: Lista nazw dni tygodnia w kolejności ich występowania w tabeli
+        """
+
+        nagłówek = tabela.select_one("tr")
+        if not nagłówek:
+            return []
+
+        th = nagłówek.find_all("th")
+
+        return [komórka.get_text(strip=True) for komórka in th[2:]]
+
+    def sformatujGodziny(tekst: str) -> tuple[str, str]:
+        """
+        Normalizuje zakres godzin lekcji do formatu `HH:MM`.
+
+        Args:
+            tekst (str): Zakres godzin w formacie tekstowym, np. `"8:00 - 8:45"`.
+
+        Returns:
+            tuple[str, str]: Krotka zawierająca godzinę rozpoczęcia i zakończenia w formacie `"HH:MM"`.
+        """
+
+        godziny = tekst.replace(" ", "")
+        surowyPoczątek, surowyKoniec = godziny.split("-", 1)
+
+        godzinaPoczątku, minutaPoczątku = surowyPoczątek.split(":", 1)
+        godzinaKońca, minutaKońca = surowyKoniec.split(":", 1)
+
+        return (
+            f"{int(godzinaPoczątku):02d}:{minutaPoczątku}",
+            f"{int(godzinaKońca):02d}:{minutaKońca}"
+        )
+
     def wyczyśćKomórkę(
         td: Tag,
         dzień: str,
@@ -417,14 +451,7 @@ async def wyodrębnijPlanLekcji(
             tekst = td.get_text(" ", strip=True)
 
             if tekst:
-                return [{
-                    "przedmiot": tekst,
-                    "grupa": None,
-                    "nauczyciel": None,
-                    "sala": None,
-                    "oddzialy": None,
-                    "zastepstwo": None
-                }]
+                return [zwróćPustąLekcję(tekst)]
 
             return []
 
@@ -439,6 +466,31 @@ async def wyodrębnijPlanLekcji(
             lekcje.extend(sparsujLekcje(fragment, dzień, numer, nazwa, rozwinięciaOddziałów, potrzebniNauczyciele, grupy, przedmiotyDodatkowe, url))
 
         return lekcje
+
+    def wyodrębnijKategorię(identyfikator: str | None) -> str | None:
+        """
+        Określa kategorię planu na podstawie identyfikatora.
+
+        Args:
+            identyfikator (str | None): Identyfikator oddziału, nauczyciela lub sali, np. o17, n78, s45.
+
+        Returns:
+            str | None: Nazwa kategorii lub None, jeśli identyfikator jest nieprawidłowy lub nieznany.
+        """
+
+        if not isinstance(identyfikator, str):
+            return None
+
+        if identyfikator.startswith("o"):
+            return "oddział"
+
+        if identyfikator.startswith("n"):
+            return "nauczyciel"
+
+        if identyfikator.startswith("s"):
+            return "sala"
+
+        return None
 
     if listaOddziałów is None:
         logowanie.warning(
@@ -522,18 +574,10 @@ async def wyodrębnijPlanLekcji(
                 continue
 
             numer = int(komórki[0].get_text(strip=True))
+            początek, koniec = sformatujGodziny(komórki[1].get_text(strip=True))
 
             for indeks, dzień in enumerate(dniTygodnia):
                 td = komórki[indeks + 2]
-
-                godziny = komórki[1].get_text(strip=True).replace(" ", "")
-                surowyPoczątek, surowyKoniec = godziny.split("-", 1)
-
-                godzinaPoczątku, minutaPoczątku = surowyPoczątek.split(":", 1)
-                godzinaKońca, minutaKońca = surowyKoniec.split(":", 1)
-
-                początek = f"{int(godzinaPoczątku):02d}:{minutaPoczątku}"
-                koniec = f"{int(godzinaKońca):02d}:{minutaKońca}"
 
                 lekcje = wyczyśćKomórkę(td, dzień, numer, nazwa, rozwinięciaOddziałów, potrzebniNauczyciele, grupy, przedmiotyDodatkowe, url)
                 if not lekcje and not zastępstwa:
@@ -589,25 +633,14 @@ async def wyodrębnijPlanLekcji(
 
         identyfikator = wyodrębnijIdentyfikator(url)
 
-        if isinstance(identyfikator, str):
-            if identyfikator.startswith("o"):
-                kategoria = "oddział"
-            elif identyfikator.startswith("n"):
-                kategoria = "nauczyciel"
-            elif identyfikator.startswith("s"):
-                kategoria = "sala"
-            else:
-                kategoria = None
-        else:
-            kategoria = None
-
         return {
             "nazwa": nazwa,
-            "kategoria": kategoria,
+            "kategoria": wyodrębnijKategorię(identyfikator),
             "url": url,
             "identyfikator": identyfikator,
             "wygenerowano": wygenerowano,
             "data": data,
+            "wolne": False,
             "zastepstwa": zastępstwa,
             "plan": plan
         }

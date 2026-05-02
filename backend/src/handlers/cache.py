@@ -21,6 +21,20 @@ from src.handlers.logging import logowanie
 
 ModelCache = TypeVar("ModelCache", bound=BaseModel)
 
+def normalizujStanOpcji(wartość: bool) -> str:
+    """
+    Normalizuje stan opcji logicznej do fragmentu klucza cache.
+
+    Args:
+        wartość (bool): Wartość logiczna.
+
+    Returns:
+        str: `"1"` gdy wartość to True, `"0"` gdy False
+    """
+
+    return "1" if wartość else "0"
+
+
 async def pobierzModel(
     klucz: str,
     model: type[ModelCache]
@@ -110,17 +124,3 @@ def zbudujFragmentKluczaCache(wartości: list[str] | None) -> str:
     })
 
     return ",".join(wynik or ["wszystkie"])
-
-
-def normalizujStanOpcji(wartość: bool) -> str:
-    """
-    Normalizuje stan opcji logicznej do fragmentu klucza cache.
-
-    Args:
-        wartość (bool): Wartość logiczna.
-
-    Returns:
-        str: `"1"` gdy wartość to True, `"0"` gdy False
-    """
-
-    return "1" if wartość else "0"

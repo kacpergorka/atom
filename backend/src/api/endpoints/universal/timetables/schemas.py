@@ -34,7 +34,7 @@ class UniwersalnaLekcja(BaseModel):
     nauczyciel: UniwersalnyElementPlanu | None
     sala: UniwersalnyElementPlanu | None
     oddzialy: list[UniwersalnyElementPlanu] | None
-    zastepstwo: UniwersalnyElementPlanu | None
+    zastepstwo: UniwersalneZastepstwoPlanu | None
 
 
 class UniwersalnyWpisPlanu(BaseModel):
@@ -52,5 +52,6 @@ class UniwersalnyPlanLekcji(BaseModel):
     identyfikator: str | None
     wygenerowano: str | None
     data: UniwersalnaData
+    wolne: bool
     zastepstwa: bool
     plan: UniwersalnyPlanTygodniowy | None

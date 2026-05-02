@@ -88,7 +88,7 @@ def wczytajKonfiguracje() -> Konfiguracja:
         )
 
     domyślne = {
-        "wersja": "0.1.0-custom",
+        "wersja": "0.2.0-custom",
         "lista": {
             "url": "https://plan.zse.bydgoszcz.pl/lista.html",
             "kodowanie": "utf-8"

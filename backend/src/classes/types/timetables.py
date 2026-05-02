@@ -52,5 +52,6 @@ class PlanLekcji(TypedDict):
     identyfikator: str | None
     wygenerowano: str | None
     data: Data
+    wolne: bool
     zastepstwa: bool
     plan: PlanTygodniowy | None

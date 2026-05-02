@@ -27,7 +27,10 @@ from src.classes.types.substitutions import (
     Zastępstwa,
     Zastępstwo
 )
-from src.handlers.helpers import wyczyśćTekst as wyczyśćTekstZastępstw
+from src.handlers.helpers import (
+    posortujNauczycieli,
+    wyczyśćTekst as wyczyśćTekstZastępstw
+)
 from src.handlers.logging import logowanie
 from src.handlers.substitutions.helpers import (
     normalizujTekst,
@@ -62,17 +65,20 @@ async def wyodrębnijZastępstwa(
         Zastępstwa: Słownik zawierający informacje o zastępstwach.
     """
 
-    def wyczyśćTekst(węzeł: Tag | str | None) -> str:
+    def zwróćPusteZastępstwa() -> Zastępstwa:
         """
-        Czyści i normalizuje tekst.
-
-        Args:
-            węzeł (Tag | str | None): Element strony internetowej do przetworzenia.
+        Zwraca pustą strukturę zastępstw w standardowym formacie.
 
         Returns:
-            str: Oczyszczony i znormalizowany tekst.
+            Zastępstwa: Pusta struktura zastępstw.
         """
-        return wyczyśćTekstZastępstw(węzeł, separator="", rozpakujTagi=True, usuńSuroweNoweLinie=True)
+        return {
+            "identyfikator": None,
+            "dzien": None,
+            "informacje": "",
+            "skrocone": None,
+            "zastepstwa": []
+        }
 
     def sprawdźKlasyKomórki(
         komórka: Tag,
@@ -96,114 +102,17 @@ async def wyodrębnijZastępstwa(
 
         return any(klasa in nazwy for klasa in klasy)
 
-    def sprawdźPrzydatne(
-        wartość: str | None,
-        etykieta: str
-    ) -> bool:
+    def wyczyśćTekst(węzeł: Tag | str | None) -> str:
         """
-        Sprawdza, czy dana wartość w wierszu tabeli jest przydatna, w celu jej wyświetlenia.
+        Czyści i normalizuje tekst.
 
         Args:
-            wartość (str | None): Tekst zawarty w polu wiersza (np. lekcja, opis, zastępca, uwagi).
-            etykieta (str): Nagłówek odpowiadający wartości (np. "Lekcja", "Opis", "Zastępca", "Uwagi").
+            węzeł (Tag | str | None): Element strony internetowej do przetworzenia.
 
         Returns:
-            bool: True, jeśli wartość jest niepusta i różna od etykiety, False w przeciwnym razie.
+            str: Oczyszczony i znormalizowany tekst.
         """
-
-        wartość = wartość.strip()
-        return bool(wartość and wartość.lower() != etykieta.lower())
-
-    def sprawdźOddział(
-        komórkiWiersza: list[str],
-        wybranyOddział: str | None
-    ) -> bool:
-        """
-        Sprawdza, czy wiersz HTML (lista wartości z wiersza tabeli) odpowiada wybranemu oddziałowi.
-
-        Args:
-            komórkiWiersza (list[str]): Lista wartości z wiersza tabeli (np. lekcja, opis, zastępca, uwagi).
-            wybranyOddział (str): Wybrany oddział przeznaczony do dopasowania.
-
-        Returns:
-            bool: True, jeśli wiersz pasuje do wybranego oddziału, False w przeciwnym razie.
-        """
-
-        komórki = komórkiWiersza[:]
-
-        if not wybranyOddział:
-            return False
-
-        if len(komórki) > 1 and komórki[1]:
-            komórki[1] = komórki[1].split("-", 1)[0]
-
-        tekst = " ".join(komórka for komórka in komórki[:-1])
-        tekst = normalizujTekst(tekst)
-        tekst = re.sub(r"[\(\)]", " ", tekst)
-        tekst = re.sub(r"\s+", " ", tekst)
-
-        znormalizowanyOddział = normalizujTekst(wybranyOddział)
-        części = znormalizowanyOddział.split()
-        wzór = r"\b" + r"\s*".join(map(re.escape, części)) + r"\b"
-
-        if re.search(wzór, tekst):
-            return True
-
-        return False
-
-    def sprawdźNauczyciela(
-        wyodrębnieniNauczyciele: set[str],
-        wybranyNauczyciel: str | None
-    ) -> bool:
-        """
-        Sprawdza, czy którykolwiek z wyodrębnionych nauczycieli zgadza się z wybranym nauczycielem.
-
-        Args:
-            wyodrębnieniNauczyciele (set[str]): Zbiór nazwisk nauczycieli wyodrębnionych z wiersza zastępstwa.
-            wybranyNauczyciel (str | None): Nauczyciel przeznaczony do dopasowania.
-
-        Returns:
-            bool: True, jeśli jakikolwiek wyodrębniony nauczyciel pasuje do wybranego, False w przeciwnym razie.
-        """
-
-        zbiórKluczy = set()
-        kluczeWybranychNauczycieli = set()
-
-        if not wybranyNauczyciel:
-            return False
-
-        for dopasowanie in wyodrębnieniNauczyciele:
-            zbiórKluczy |= zwróćNazwyKluczy(dopasowanie)
-
-        kluczeWybranychNauczycieli |= zwróćNazwyKluczy(wybranyNauczyciel)
-
-        return bool(zbiórKluczy & kluczeWybranychNauczycieli)
-
-    def sprawdźIstnienieZastępstw(wiersze: list[Tag]) -> bool:
-        """
-        Sprawdza, czy w tabeli HTML istnieje przynajmniej jeden wiersz z realnym zastępstwem.
-
-        Args:
-            wiersze (list[Tag]): Lista wierszy (<tr>) pobranych z obiektu BeautifulSoup.
-
-        Returns:
-            bool: True, jeśli przynajmniej jeden wiersz zawiera dane zastępstwo, False w przeciwnym razie.
-        """
-
-        nagłówki = {"lekcja", "opis", "zastępca", "uwagi"}
-
-        for wiersz in wiersze:
-            komórki = wiersz.find_all("td")
-
-            if len(komórki) >= 4:
-                teksty = [wyczyśćTekst(td).lower() for td in komórki[:4]]
-                jestPuste = all(tekst == "" or tekst == "&nbsp;" for tekst in teksty)
-                jestNagłówek = set(tekst.strip().lower() for tekst in teksty) <= nagłówki
-
-                if not jestPuste and not jestNagłówek:
-                    return True
-
-        return False
+        return wyczyśćTekstZastępstw(węzeł, separator="", rozpakujTagi=True, usuńSuroweNoweLinie=True)
 
     def wyodrębnijInformacje(
         wiersze: list[Tag],
@@ -296,6 +205,75 @@ async def wyodrębnijZastępstwa(
 
         return None
 
+    def sprawdźSkrócone(tekst: str) -> bool:
+        """
+        Sprawdza, czy przekazany tekst wskazuje na skrócone lekcje.
+
+        Args:
+            tekst (str): Tekst informacji dodatkowych zastępstw.
+
+        Returns:
+            bool: True, jeśli tekst sugeruje skrócone lekcje, False w przeciwnym razie.
+        """
+
+        tekst = tekst.lower()
+        return "rzs.pdf" in tekst or "skrócon" in tekst
+
+    def sprawdźPrzydatne(
+        wartość: str | None,
+        etykieta: str
+    ) -> bool:
+        """
+        Sprawdza, czy dana wartość w wierszu tabeli jest przydatna, w celu jej wyświetlenia.
+
+        Args:
+            wartość (str | None): Tekst zawarty w polu wiersza (np. lekcja, opis, zastępca, uwagi).
+            etykieta (str): Nagłówek odpowiadający wartości (np. "Lekcja", "Opis", "Zastępca", "Uwagi").
+
+        Returns:
+            bool: True, jeśli wartość jest niepusta i różna od etykiety, False w przeciwnym razie.
+        """
+
+        wartość = wartość.strip()
+        return bool(wartość and wartość.lower() != etykieta.lower())
+
+    def sprawdźOddział(
+        komórkiWiersza: list[str],
+        wybranyOddział: str | None
+    ) -> bool:
+        """
+        Sprawdza, czy wiersz HTML (lista wartości z wiersza tabeli) odpowiada wybranemu oddziałowi.
+
+        Args:
+            komórkiWiersza (list[str]): Lista wartości z wiersza tabeli (np. lekcja, opis, zastępca, uwagi).
+            wybranyOddział (str): Wybrany oddział przeznaczony do dopasowania.
+
+        Returns:
+            bool: True, jeśli wiersz pasuje do wybranego oddziału, False w przeciwnym razie.
+        """
+
+        komórki = komórkiWiersza[:]
+
+        if not wybranyOddział:
+            return False
+
+        if len(komórki) > 1 and komórki[1]:
+            komórki[1] = komórki[1].split("-", 1)[0]
+
+        tekst = " ".join(komórka for komórka in komórki[:-1])
+        tekst = normalizujTekst(tekst)
+        tekst = re.sub(r"[\(\)]", " ", tekst)
+        tekst = re.sub(r"\s+", " ", tekst)
+
+        znormalizowanyOddział = normalizujTekst(wybranyOddział)
+        części = znormalizowanyOddział.split()
+        wzór = r"\b" + r"\s*".join(map(re.escape, części)) + r"\b"
+
+        if re.search(wzór, tekst):
+            return True
+
+        return False
+
     def wyodrębnijNauczycieli(
         nazwaNagłówka: str | None,
         komórkaZastępcy: str | None
@@ -331,13 +309,61 @@ async def wyodrębnijZastępstwa(
         logowanie.warning(
             "Brak listy oddziałów lub listy nauczycieli. Zwracanie pustej zawartości."
         )
-        return {
-            "identyfikator": None,
-            "dzien": None,
-            "informacje": "",
-            "skrocone": None,
-            "zastepstwa": []
-        }
+        return zwróćPusteZastępstwa()
+
+    def sprawdźNauczyciela(
+        wyodrębnieniNauczyciele: set[str],
+        wybranyNauczyciel: str | None
+    ) -> bool:
+        """
+        Sprawdza, czy którykolwiek z wyodrębnionych nauczycieli zgadza się z wybranym nauczycielem.
+
+        Args:
+            wyodrębnieniNauczyciele (set[str]): Zbiór nazwisk nauczycieli wyodrębnionych z wiersza zastępstwa.
+            wybranyNauczyciel (str | None): Nauczyciel przeznaczony do dopasowania.
+
+        Returns:
+            bool: True, jeśli jakikolwiek wyodrębniony nauczyciel pasuje do wybranego, False w przeciwnym razie.
+        """
+
+        zbiórKluczy = set()
+        kluczeWybranychNauczycieli = set()
+
+        if not wybranyNauczyciel:
+            return False
+
+        for dopasowanie in wyodrębnieniNauczyciele:
+            zbiórKluczy |= zwróćNazwyKluczy(dopasowanie)
+
+        kluczeWybranychNauczycieli |= zwróćNazwyKluczy(wybranyNauczyciel)
+
+        return bool(zbiórKluczy & kluczeWybranychNauczycieli)
+
+    def sprawdźIstnienieZastępstw(wiersze: list[Tag]) -> bool:
+        """
+        Sprawdza, czy w tabeli HTML istnieje przynajmniej jeden wiersz z realnym zastępstwem.
+
+        Args:
+            wiersze (list[Tag]): Lista wierszy (<tr>) pobranych z obiektu BeautifulSoup.
+
+        Returns:
+            bool: True, jeśli przynajmniej jeden wiersz zawiera dane zastępstwo, False w przeciwnym razie.
+        """
+
+        nagłówki = {"lekcja", "opis", "zastępca", "uwagi"}
+
+        for wiersz in wiersze:
+            komórki = wiersz.find_all("td")
+
+            if len(komórki) >= 4:
+                teksty = [wyczyśćTekst(td).lower() for td in komórki[:4]]
+                jestPuste = all(tekst == "" or tekst == "&nbsp;" for tekst in teksty)
+                jestNagłówek = set(tekst.strip().lower() for tekst in teksty) <= nagłówki
+
+                if not jestPuste and not jestNagłówek:
+                    return True
+
+        return False
 
     try:
         identyfikator: str | None = None
@@ -366,7 +392,7 @@ async def wyodrębnijZastępstwa(
 
         informacjeDodatkowe = wyodrębnijInformacje(wiersze, "st0")
         dzień = wyodrębnijDzień(informacjeDodatkowe) if informacjeDodatkowe else None
-        skrócone: bool = "rzs.pdf" in informacjeDodatkowe.lower() or "skrócon" in informacjeDodatkowe.lower()
+        skrócone = sprawdźSkrócone(informacjeDodatkowe)
 
         indeksST0: int | None = None
         for indeksWiersza, wiersz in enumerate(wiersze):
@@ -425,11 +451,10 @@ async def wyodrębnijZastępstwa(
                     or (wybranyOddział and (dopasowaneDoOddziału or not zidentyfikowane))
                     or (wybranyNauczyciel and dopasowaneDoNauczyciela)
                 ):
-                    nazwaNauczyciela = aktualnyNauczyciel or ", ".join(wyodrębnieniNauczyciele) or "Nieznany"
                     wpisyZastępstw.append({
                         "zidentyfikowane": zidentyfikowane,
                         "grupa": None,
-                        "nauczyciel": nazwaNauczyciela,
+                        "nauczyciel": aktualnyNauczyciel or ", ".join(wyodrębnieniNauczyciele) or "Nieznany",
                         "lekcja": int(lekcja) if sprawdźPrzydatne(lekcja, "Lekcja") else None,
                         "opis": opis if sprawdźPrzydatne(opis, "Opis") else None,
                         "zastepca": zastępca if sprawdźPrzydatne(zastępca, "Zastępca") else None,
@@ -439,10 +464,12 @@ async def wyodrębnijZastępstwa(
         if not informacjeDodatkowe and not sprawdźIstnienieZastępstw(wiersze):
             informacjeDodatkowe = wyodrębnijInformacje(wiersze, "st1")
             dzień = wyodrębnijDzień(informacjeDodatkowe) if informacjeDodatkowe else None
-            skrócone: bool = "rzs.pdf" in informacjeDodatkowe.lower() or "skrócon" in informacjeDodatkowe.lower()
+            skrócone = sprawdźSkrócone(informacjeDodatkowe)
 
         if wybranyOddział and wpisyZastępstw and identyfikator and dzień:
             wpisyZastępstw = await uzupełnijZastępstwa(atom, wpisyZastępstw, identyfikator, dzień, listaOddziałów, grupy, przedmiotyDodatkowe)
+
+        wpisyZastępstw.sort(key=posortujNauczycieli)
 
         return {
             "identyfikator": identyfikator,
@@ -455,10 +482,4 @@ async def wyodrębnijZastępstwa(
         logowanie.exception(
             f"Wystąpił błąd podczas przetwarzania HTML zastępstw. Więcej informacji: {e}"
         )
-        return {
-            "identyfikator": None,
-            "dzien": None,
-            "informacje": "",
-            "skrocone": None,
-            "zastepstwa": []
-        }
+        return zwróćPusteZastępstwa()

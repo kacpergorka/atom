@@ -18,25 +18,6 @@ from src.classes.types.announcements import (
     Ogłoszenie as SuroweOgłoszenie
 )
 
-def mapujOgłoszenie(dane: SuroweOgłoszenie) -> AtomoweOgloszenie:
-    """
-    Mapuje surowe ogłoszenie do modelu API Atomu.
-
-    Args:
-        dane (SuroweOgłoszenie): Surowe ogłoszenie zwrócone przez parser.
-
-    Returns:
-        AtomoweOgloszenie: Spłaszczony model ogłoszenia.
-    """
-
-    return AtomoweOgloszenie(
-        tytul=dane["tytul"],
-        stopka=dane.get("stopka"),
-        url=dane["url"],
-        obraz=dane.get("obraz")
-    )
-
-
 def mapujOgłoszenia(dane: SuroweOgłoszenia) -> AtomoweOgloszenia:
     """
     Mapuje surowe ogłoszenia do modelu API Atomu.
@@ -47,6 +28,24 @@ def mapujOgłoszenia(dane: SuroweOgłoszenia) -> AtomoweOgloszenia:
     Returns:
         AtomoweOgloszenia: Spłaszczony model ogłoszeń.
     """
+
+    def mapujOgłoszenie(dane: SuroweOgłoszenie) -> AtomoweOgloszenie:
+        """
+        Mapuje surowe ogłoszenie do modelu API Atomu.
+
+        Args:
+            dane (SuroweOgłoszenie): Surowe ogłoszenie zwrócone przez parser.
+
+        Returns:
+            AtomoweOgloszenie: Spłaszczony model ogłoszenia.
+        """
+
+        return AtomoweOgloszenie(
+            tytul=dane["tytul"],
+            stopka=dane.get("stopka"),
+            url=dane["url"],
+            obraz=dane.get("obraz")
+        )
 
     return AtomoweOgloszenia(
         aktualnaStrona=dane.get("aktualnaStrona"),

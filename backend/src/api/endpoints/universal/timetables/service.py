@@ -32,6 +32,7 @@ from src.handlers.cache import (
     zbudujFragmentKluczaCache
 )
 from src.handlers.configuration import konfiguracja
+from src.handlers.holidays.checker import sprawdźCzyDzisiajJestWolne
 from src.handlers.logging import logowanie
 from src.handlers.scraper import pobierzZawartośćStrony
 from src.handlers.timetables.assembler import zbudujPlanLekcji
@@ -64,6 +65,26 @@ async def pobierzPlanLekcji(
         ŹródłoNiedostępne: Gdy wystąpi problem z pobraniem danych.
     """
 
+    async def pobierzStatusDniaWolnego() -> bool:
+        """
+        Pobiera informację, czy bieżący dzień jest wolny od zajęć.
+
+        Returns:
+            bool: `True`, jeśli backend numerków rozpoznał dzień wolny od zajęć.
+        """
+
+        try:
+            szkoła = konfiguracja.get("szkola", {})
+            return await sprawdźCzyDzisiajJestWolne(
+                szkoła.get("url"),
+                szkoła.get("kodowanie")
+            )
+        except Exception as e:
+            logowanie.warning(
+                f"Nie udało się ustalić, czy bieżący dzień jest wolny od zajęć. Więcej informacji: {e}"
+            )
+            return False
+
     try:
         plany = konfiguracja.get("plany", {})
         katalogPlanów = plany.get("url")
@@ -81,7 +102,7 @@ async def pobierzPlanLekcji(
         cachePlanu = await pobierzModel(kluczCache, UniwersalnyPlanLekcji)
 
         if cachePlanu is not None:
-            return cachePlanu
+            return cachePlanu.model_copy(update={"wolne": await pobierzStatusDniaWolnego()})
 
         przedmiotyDodatkowe = zbudujPrzedmiotyDodatkowe(religia, edukacjaZdrowotna)
         listy = (await pobierzListy(None, None, None)).model_dump()
@@ -107,6 +128,7 @@ async def pobierzPlanLekcji(
         planLekcji = UniwersalnyPlanLekcji.model_validate(
             await wyodrębnijPlanLekcji(atom.sesja, zawartośćStronyPlanu, listaOddziałów, grupy, przedmiotyDodatkowe, zastepstwa, urlPlanu)
         )
+        planLekcji = planLekcji.model_copy(update={"wolne": await pobierzStatusDniaWolnego()})
 
         if not zastepstwa:
             if cache:

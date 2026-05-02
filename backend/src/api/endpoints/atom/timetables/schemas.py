@@ -31,5 +31,6 @@ class AtomowyPlanLekcji(BaseModel):
     wygenerowano: str | None
     obowiazuje: str | None
     wygasa: str | None
+    wolne: bool
     zastepstwa: bool
     lekcje: list[AtomowaLekcja] | None

@@ -21,92 +21,6 @@ from src.classes.types.timetables import (
     PlanLekcji as SurowyPlanLekcji
 )
 
-def wyodrębnijTekst(element: SurowyElementPlanu | None) -> str | None:
-    """
-    Zwraca wartość pola `tekst` z przekazanego elementu planu.
-
-    Args:
-        element (SurowyElementPlanu | None): Element planu lub `None`.
-
-    Returns:
-        str | None: Tekst elementu albo `None`, jeśli element nie istnieje.
-    """
-
-    if element is None:
-        return None
-
-    return element.get("tekst")
-
-
-def połączOddziały(oddziały: list[SurowyElementPlanu] | None) -> str | None:
-    """
-    Łączy nazwy oddziałów w pojedynczy ciąg znaków oddzielony przecinkami.
-
-    Args:
-        oddziały (list[SurowyElementPlanu] | None): Lista elementów opisujących oddziały.
-
-    Returns:
-        str | None: Połączona lista nazw oddziałów albo `None`, jeśli brak danych.
-    """
-
-    if not oddziały:
-        return None
-
-    przetworzoneOddziały = []
-
-    for oddział in oddziały:
-        tekst = oddział.get("tekst")
-
-        if not tekst:
-            continue
-
-        oczyszczonyTekst = tekst.strip().rstrip(",")
-        if oczyszczonyTekst:
-            przetworzoneOddziały.append(oczyszczonyTekst)
-
-    return ", ".join(przetworzoneOddziały) or None
-
-
-def wygenerujIdentyfikator(
-    dzień: str,
-    numer: int,
-    przedmiot: str,
-    nauczyciel: str | None,
-    sala: str | None,
-    oddzialy: str | None,
-    zastepca: str | None,
-    opis: str | None,
-    uwagi: str | None,
-    początek: str,
-    koniec: str
-) -> str:
-    """
-    Generuje stabilny identyfikator lekcji na podstawie jej cech opisowych.
-
-    Args:
-        dzień (str): Dzień tygodnia, w którym odbywa się lekcja.
-        numer (int): Numer lekcji w planie dnia.
-        przedmiot (str): Nazwa przedmiotu.
-        nauczyciel (str | None): Nazwa nauczyciela.
-        sala (str | None): Nazwa sali.
-        oddzialy (str | None): Połączona lista nazw oddziałów.
-        zastepca (str | None): Nazwa nauczyciela prowadzącego zastępstwo.
-        opis (str | None): Opis zastępstwa.
-        uwagi (str | None): Dodatkowe uwagi do zastępstwa.
-        początek (str): Godzina rozpoczęcia lekcji.
-        koniec (str): Godzina zakończenia lekcji.
-
-    Returns:
-        str: Skrót SHA-256 identyfikujący lekcję.
-    """
-
-    surowyIdentyfikator = (
-        f"{dzień}|{numer}|{początek}|{koniec}|{przedmiot}|{nauczyciel or 'brak'}|{sala or 'brak'}|{oddzialy or 'brak'}|{zastepca or 'brak'}|{opis or 'brak'}|{uwagi or 'brak'}"
-    )
-    hash = hashlib.sha256(surowyIdentyfikator.encode("utf-8"))
-    return hash.hexdigest()
-
-
 def mapujPlanLekcji(dane: SurowyPlanLekcji) -> AtomowyPlanLekcji:
     """
     Mapuje surową strukturę planu lekcji do modelu API Atomu.
@@ -117,6 +31,89 @@ def mapujPlanLekcji(dane: SurowyPlanLekcji) -> AtomowyPlanLekcji:
     Returns:
         AtomowyPlanLekcji: Spłaszczony model planu lekcji.
     """
+
+    def wyodrębnijTekst(element: SurowyElementPlanu | None) -> str | None:
+        """
+        Zwraca wartość pola `tekst` z przekazanego elementu planu.
+
+        Args:
+            element (SurowyElementPlanu | None): Element planu lub `None`.
+
+        Returns:
+            str | None: Tekst elementu albo `None`, jeśli element nie istnieje.
+        """
+
+        if element is None:
+            return None
+
+        return element.get("tekst")
+
+    def połączOddziały(oddziały: list[SurowyElementPlanu] | None) -> str | None:
+        """
+        Łączy nazwy oddziałów w pojedynczy ciąg znaków oddzielony przecinkami.
+
+        Args:
+            oddziały (list[SurowyElementPlanu] | None): Lista elementów opisujących oddziały.
+
+        Returns:
+            str | None: Połączona lista nazw oddziałów albo `None`, jeśli brak danych.
+        """
+
+        if not oddziały:
+            return None
+
+        przetworzoneOddziały = []
+
+        for oddział in oddziały:
+            tekst = oddział.get("tekst")
+
+            if not tekst:
+                continue
+
+            oczyszczonyTekst = tekst.strip().rstrip(",")
+            if oczyszczonyTekst:
+                przetworzoneOddziały.append(oczyszczonyTekst)
+
+        return ", ".join(przetworzoneOddziały) or None
+
+    def wygenerujIdentyfikator(
+        dzień: str,
+        numer: int,
+        przedmiot: str,
+        nauczyciel: str | None,
+        sala: str | None,
+        oddzialy: str | None,
+        zastepca: str | None,
+        opis: str | None,
+        uwagi: str | None,
+        początek: str,
+        koniec: str
+    ) -> str:
+        """
+        Generuje stabilny identyfikator lekcji na podstawie jej cech opisowych.
+
+        Args:
+            dzień (str): Dzień tygodnia, w którym odbywa się lekcja.
+            numer (int): Numer lekcji w planie dnia.
+            przedmiot (str): Nazwa przedmiotu.
+            nauczyciel (str | None): Nazwa nauczyciela.
+            sala (str | None): Nazwa sali.
+            oddzialy (str | None): Połączona lista nazw oddziałów.
+            zastepca (str | None): Nazwa nauczyciela prowadzącego zastępstwo.
+            opis (str | None): Opis zastępstwa.
+            uwagi (str | None): Dodatkowe uwagi do zastępstwa.
+            początek (str): Godzina rozpoczęcia lekcji.
+            koniec (str): Godzina zakończenia lekcji.
+
+        Returns:
+            str: Skrót SHA-256 identyfikujący lekcję.
+        """
+
+        surowyIdentyfikator = (
+            f"{dzień}|{numer}|{początek}|{koniec}|{przedmiot}|{nauczyciel or 'brak'}|{sala or 'brak'}|{oddzialy or 'brak'}|{zastepca or 'brak'}|{opis or 'brak'}|{uwagi or 'brak'}"
+        )
+        hash = hashlib.sha256(surowyIdentyfikator.encode("utf-8"))
+        return hash.hexdigest()
 
     lekcjeZmapowane: list[AtomowaLekcja] = []
 
@@ -159,6 +156,7 @@ def mapujPlanLekcji(dane: SurowyPlanLekcji) -> AtomowyPlanLekcji:
         wygenerowano=dane.get("wygenerowano"),
         obowiazuje=data.get("obowiazuje"),
         wygasa=data.get("wygasa"),
+        wolne=dane.get("wolne", False),
         zastepstwa=dane["zastepstwa"],
         lekcje=(lekcjeZmapowane if surowyPlan is not None else None)
     )

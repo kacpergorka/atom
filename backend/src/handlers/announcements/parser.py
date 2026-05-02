@@ -41,6 +41,40 @@ def wyodrębnijOgłoszenia(
         Ogłoszenia: Słownik zawierający listę ogłoszeń z paginacją.
     """
 
+    def zwróćPusteOgłoszenia() -> Ogłoszenia:
+        """
+        Zwraca pustą strukturę ogłoszeń w standardowym formacie.
+
+        Returns:
+            Zastępstwa: Pusta struktura ogłoszeń.
+        """
+        return {
+            "aktualnaStrona": 1,
+            "ostatniaStrona": 1,
+            "poprzedniaStrona": None,
+            "nastepnaStrona": None,
+            "ogloszenia": []
+        }
+
+    def zbudujPełnyUrl(
+        bazowyUrl: str,
+        url: str | None
+    ) -> str | None:
+        """
+        Buduje pełny adres strony internetowej na podstawie bazowego adresu i względnej ścieżki.
+
+        Args:
+            bazowyUrl: Bazowy adres strony internetowej.
+            url: Względny lub absolutny adres strony internetowej.
+
+        Returns:
+            str | None: Pełny URL lub None, jeśli brak wejściowego URL.
+        """
+        if not url:
+            return None
+
+        return urljoin(bazowyUrl, url.strip())
+
     def znajdźLinkOgłoszenia(wiersz: Tag) -> Tag | None:
         """
         Znajduje link prowadzący do szczegółów ogłoszenia w wierszu.
@@ -80,25 +114,6 @@ def wyodrębnijOgłoszenia(
 
         dopasowanie = wzórIdentyfikatora.search(url)
         return dopasowanie.group(1) if dopasowanie else ""
-
-    def zbudujPełnyUrl(
-        bazowyUrl: str,
-        url: str | None
-    ) -> str | None:
-        """
-        Buduje pełny adres strony internetowej na podstawie bazowego adresu i względnej ścieżki.
-
-        Args:
-            bazowyUrl: Bazowy adres strony internetowej.
-            url: Względny lub absolutny adres strony internetowej.
-
-        Returns:
-            str | None: Pełny URL lub None, jeśli brak wejściowego URL.
-        """
-        if not url:
-            return None
-
-        return urljoin(bazowyUrl, url.strip())
 
     def wyodrębnijPaginację(
         zawartośćStrony: BeautifulSoup,
@@ -144,13 +159,7 @@ def wyodrębnijOgłoszenia(
     try:
         kontener = zawartośćStrony.select_one(".main-content")
         if not isinstance(kontener, Tag):
-            return {
-                "aktualnaStrona": 1,
-                "ostatniaStrona": 1,
-                "poprzedniaStrona": None,
-                "nastepnaStrona": None,
-                "ogloszenia": []
-            }
+            return zwróćPusteOgłoszenia()
 
         ogłoszenia: list[Ogłoszenie] = []
 
@@ -198,10 +207,4 @@ def wyodrębnijOgłoszenia(
         logowanie.exception(
             f"Wystąpił błąd podczas przetwarzania HTML ogłoszeń. Więcej informacji: {e}"
         )
-        return {
-            "aktualnaStrona": 1,
-            "ostatniaStrona": 1,
-            "poprzedniaStrona": None,
-            "nastepnaStrona": None,
-            "ogloszenia": []
-        }
+        return zwróćPusteOgłoszenia()
