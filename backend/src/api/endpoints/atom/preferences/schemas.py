@@ -8,47 +8,17 @@
 #  ▀▀    ▀▀     ▀▀       ▀▀▀▀    ▀▀    ▀▀            ▀▀    ▀▀  ▀▀         ▀▀▀▀▀▀
 #
 
-# Standardowe biblioteki
-from typing import TypedDict
+# Zewnętrzne biblioteki
+from pydantic import BaseModel
 
-class KonfiguracjaListy(TypedDict):
-    url: str
-    kodowanie: str
-
-
-class KonfiguracjaSzkoły(TypedDict):
-    url: str
-    kodowanie: str
-
-
-class KonfiguracjaOgłoszeń(TypedDict):
-    url: str
-    kodowanie: str
-
-
-class KonfiguracjaPlanów(TypedDict):
-    url: str
-    kodowanie: str
-
-
-class KonfiguracjaZastępstw(TypedDict):
-    url: str
-    kodowanie: str
-
-
-class KonfiguracjaGrup(TypedDict):
-    zajeciaLekcyjne: list[str]
-    zajeciaPraktyczne: list[str]
-    wychowanieFizyczne: list[str]
-    pozostale: list[str]
-
-
-class Konfiguracja(TypedDict):
-    wersja: str
-    lista: KonfiguracjaListy
-    szkola: KonfiguracjaSzkoły
-    ogloszenia: KonfiguracjaOgłoszeń
-    plany: KonfiguracjaPlanów
-    zastepstwa: KonfiguracjaZastępstw
-    grupy: KonfiguracjaGrup
-    skrocone: dict[str, str]
+class Preferencje(BaseModel):
+    oddzial: str | None = None
+    identyfikatorOddzialu: str | None = None
+    nauczyciel: str | None = None
+    identyfikatorNauczyciela: str | None = None
+    grupaZajecLekcyjnych: str | None = None
+    grupaZajecPraktycznych: str | None = None
+    grupaWychowaniaFizycznego: str | None = None
+    religia: bool = True
+    edukacjaZdrowotna: bool = True
+    numerekUcznia: int | None = None

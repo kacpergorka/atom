@@ -31,7 +31,10 @@ from src.classes.types.timetables import (
     PlanLekcji
 )
 from src.handlers.configuration import konfiguracja
-from src.handlers.helpers import sprawdźGrupę
+from src.handlers.helpers import (
+    pobierzGrupyKonfiguracji,
+    sprawdźGrupę
+)
 from src.handlers.logging import logowanie
 from src.handlers.timetables.helpers import (
     wyodrębnijIdentyfikator,
@@ -90,6 +93,9 @@ async def wyodrębnijPlanLekcji(
     def zwróćPustąLekcję(tekst: str) -> Lekcja:
         """
         Zwraca pustą strukturę lekcji w standardowym formacie.
+
+        Args:
+            tekst (str): Tekst używany jako nazwa pustej lekcji.
 
         Returns:
             PlanLekcji: Pusta struktura lekcji.
@@ -214,7 +220,7 @@ async def wyodrębnijPlanLekcji(
             str | None: Oznaczenie grupy.
         """
 
-        wzorce: list[str] = konfiguracja.get("grupy", [])
+        wzorce = pobierzGrupyKonfiguracji()
 
         for wzorzec in wzorce:
             if wzorzec in tekst:

@@ -88,7 +88,7 @@ def wczytajKonfiguracje() -> Konfiguracja:
         )
 
     domyślne = {
-        "wersja": "0.2.0-custom",
+        "wersja": "0.3.0-custom",
         "lista": {
             "url": "https://plan.zse.bydgoszcz.pl/lista.html",
             "kodowanie": "utf-8"
@@ -109,9 +109,20 @@ def wczytajKonfiguracje() -> Konfiguracja:
             "url": "https://zastepstwa.zse.bydgoszcz.pl",
             "kodowanie": "iso-8859-2"
         },
-        "grupy": [
-            "1/3", "2/3", "3/3", "1/2", "2/2", "1/1", "j1", "j2"
-        ],
+        "grupy": {
+            "zajeciaLekcyjne": [
+                "1/2", "2/2"
+            ],
+            "zajeciaPraktyczne": [
+                "1/3", "2/3", "3/3"
+            ],
+            "wychowanieFizyczne": [
+                "j1", "j2"
+            ],
+            "pozostale": [
+                "1/1"
+            ]
+        },
         "skrocone": {
             "0": "07:05-07:35",
             "1": "07:40-08:10",

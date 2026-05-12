@@ -9,11 +9,7 @@
 #
 
 # Standardowe biblioteki
-from datetime import (
-    datetime,
-    time,
-    timedelta
-)
+from datetime import datetime
 from zoneinfo import ZoneInfo
 
 # Wewnętrzne importy
@@ -29,6 +25,7 @@ from src.handlers.cache import (
 from src.handlers.configuration import konfiguracja
 from src.handlers.holidays.checker import sprawdźCzyDzisiajJestWolne
 from src.handlers.logging import logowanie
+from src.handlers.numbers import database
 from src.handlers.numbers.generator import wygenerujSzczęśliweNumerki
 
 strefaCzasowa = ZoneInfo("Europe/Warsaw")
@@ -44,22 +41,6 @@ async def pobierzSzczęśliweNumerki() -> UniwersalneSzczesliweNumerki:
         BłądWewnętrzny: Gdy wystąpi nieoczekiwany błąd przetwarzania.
         BrakWymaganychDanych: Gdy w pliku konfiguracyjnym nie znajdują się wymagane dane.
     """
-
-    def obliczCzasDoKońcaDnia() -> int:
-        """
-        Oblicza czas życia cache do końca bieżącego dnia.
-
-        Returns:
-            int: Liczba sekund pozostałych do północy, minimum jedna sekunda.
-        """
-
-        teraz = datetime.now(strefaCzasowa)
-        jutro = datetime.combine(
-            teraz.date() + timedelta(days=1),
-            time.min,
-            tzinfo=strefaCzasowa
-        )
-        return max(1, int((jutro - teraz).total_seconds()))
 
     try:
         szkoła = konfiguracja.get("szkola", {})
@@ -81,12 +62,21 @@ async def pobierzSzczęśliweNumerki() -> UniwersalneSzczesliweNumerki:
         if cacheNumerków is not None:
             return cacheNumerków
 
+        zapisaneNumerki = await database.pobierzSzczęśliweNumerki(dzisiejszaData)
+
+        if zapisaneNumerki is not None:
+            await zapiszModel(kluczCache, zapisaneNumerki)
+            return zapisaneNumerki
+
         dzieńWolny = await sprawdźCzyDzisiajJestWolne(url, kodowanie, dzisiaj)
+
         szczęśliweNumerki = UniwersalneSzczesliweNumerki.model_validate(
             await wygenerujSzczęśliweNumerki(dzieńWolny)
         )
 
-        await zapiszModel(kluczCache, szczęśliweNumerki, obliczCzasDoKońcaDnia())
+        await database.zapiszSzczęśliweNumerki(szczęśliweNumerki)
+        await zapiszModel(kluczCache, szczęśliweNumerki)
+
         return szczęśliweNumerki
     except BrakWymaganychDanych:
         raise

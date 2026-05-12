@@ -6,7 +6,23 @@ services:
         ports:
             - "8000:8000"
         environment:
+            DOCKER: "true"
             REDIS_URL: "redis://redis:6379/0"
+            JWT_ALGORITHM: "${JWT_ALGORITHM:-}"
+            JWT_SECRET: "${JWT_SECRET:-}"
+            JWT_JWKS_URL: "${JWT_JWKS_URL:-}"
+            JWT_ISSUER: "${JWT_ISSUER:-}"
+            JWT_AUDIENCE: "${JWT_AUDIENCE:-}"
+            APNS_KEY_ID: "${APNS_KEY_ID:-}"
+            APNS_TEAM_ID: "${APNS_TEAM_ID:-}"
+            APNS_BUNDLE_ID: "${APNS_BUNDLE_ID:-}"
+            APNS_PRIVATE_KEY: "${APNS_PRIVATE_KEY:-}"
+            APNS_ENV: "${APNS_ENV:-}"
+            SUPABASE_URL: "${SUPABASE_URL:-}"
+            SUPABASE_SERVICE_ROLE_KEY: "${SUPABASE_SERVICE_ROLE_KEY:-}"
+        volumes:
+            - ./data:/app/data
+            - ./keys:/keys:ro
         depends_on:
             - redis
         restart: unless-stopped

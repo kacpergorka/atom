@@ -9,46 +9,23 @@
 #
 
 # Standardowe biblioteki
-from typing import TypedDict
+import sqlite3
+from pathlib import Path
 
-class KonfiguracjaListy(TypedDict):
-    url: str
-    kodowanie: str
+katalogDanych = Path(__file__).resolve().parents[2] / "data"
+ścieżkaBazy = katalogDanych / "data.sqlite3"
 
+def połączBazęDanych() -> sqlite3.Connection:
+    """
+    Otwiera połączenie SQLite dla lokalnej bazy danych aplikacji.
 
-class KonfiguracjaSzkoły(TypedDict):
-    url: str
-    kodowanie: str
+    Returns:
+        sqlite3.Connection: Połączenie SQLite z ustawieniami bazy danych.
+    """
 
-
-class KonfiguracjaOgłoszeń(TypedDict):
-    url: str
-    kodowanie: str
-
-
-class KonfiguracjaPlanów(TypedDict):
-    url: str
-    kodowanie: str
-
-
-class KonfiguracjaZastępstw(TypedDict):
-    url: str
-    kodowanie: str
-
-
-class KonfiguracjaGrup(TypedDict):
-    zajeciaLekcyjne: list[str]
-    zajeciaPraktyczne: list[str]
-    wychowanieFizyczne: list[str]
-    pozostale: list[str]
-
-
-class Konfiguracja(TypedDict):
-    wersja: str
-    lista: KonfiguracjaListy
-    szkola: KonfiguracjaSzkoły
-    ogloszenia: KonfiguracjaOgłoszeń
-    plany: KonfiguracjaPlanów
-    zastepstwa: KonfiguracjaZastępstw
-    grupy: KonfiguracjaGrup
-    skrocone: dict[str, str]
+    katalogDanych.mkdir(parents=True, exist_ok=True)
+    połączenie = sqlite3.connect(ścieżkaBazy, timeout=30, isolation_level=None)
+    połączenie.execute("PRAGMA foreign_keys = ON")
+    połączenie.execute("PRAGMA busy_timeout = 30000")
+    połączenie.row_factory = sqlite3.Row
+    return połączenie

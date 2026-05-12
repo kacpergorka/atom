@@ -39,7 +39,8 @@ async def pobierzZastępstwa(
     identyfikator: str | None,
     grupy: list[str] | None,
     religia: bool,
-    edukacjaZdrowotna: bool
+    edukacjaZdrowotna: bool,
+    pomińCache: bool = False
 ) -> UniwersalneZastepstwa:
     """
     Pobiera i przetwarza zastępstwa na podstawie przekazanych parametrów wejściowych.
@@ -49,6 +50,7 @@ async def pobierzZastępstwa(
         grupy (list[str] | None): Lista oznaczeń określających grupę przedmiotów.
         religia (bool): Flaga informująca, czy uwzględniać lekcje religii w planie lekcji.
         edukacjaZdrowotna (bool): Flaga informująca, czy uwzględniać lekcje edukacji zdrowotnej w planie lekcji.
+        pomińCache (bool): Flaga informująca, czy należy pominąć cache podczas pobierania danych.
 
     Returns:
         UniwersalneZastepstwa: Słownik zawierający informacje o zastępstwach.
@@ -76,7 +78,7 @@ async def pobierzZastępstwa(
 
         identyfikatorTekst = identyfikator if identyfikator else "wszystkie"
         kluczCache = f"cache:zastepstwa:{identyfikatorTekst}:{zbudujFragmentKluczaCache(grupy)}:{normalizujStanOpcji(religia)}:{normalizujStanOpcji(edukacjaZdrowotna)}"
-        cacheZastępstw = await pobierzModel(kluczCache, UniwersalneZastepstwa)
+        cacheZastępstw = None if pomińCache else await pobierzModel(kluczCache, UniwersalneZastepstwa)
 
         if cacheZastępstw is not None:
             return cacheZastępstw

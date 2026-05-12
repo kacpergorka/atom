@@ -23,6 +23,28 @@ from bs4 import (
 # Wewnętrzne importy
 from src.handlers.configuration import konfiguracja
 
+def pobierzGrupyKonfiguracji() -> tuple[str, ...]:
+    """
+    Pobiera wszystkie oznaczenia grup z konfiguracji.
+
+    Returns:
+        tuple[str, ...]: Unikalne oznaczenia grup w kolejności z konfiguracji.
+    """
+
+    grupy = konfiguracja.get("grupy", {})
+    if not isinstance(grupy, Mapping):
+        return ()
+
+    wartości = (
+        grupa.strip()
+        for lista in grupy.values()
+        if isinstance(lista, list)
+        for grupa in lista
+        if isinstance(grupa, str) and grupa.strip()
+    )
+    return tuple(dict.fromkeys(wartości))
+
+
 def posortujNauczycieli(element: Mapping[str, Any] | str | None) -> str:
     """
     Zwraca klucz sortowania dla nauczyciela na podstawie jego nazwiska.
@@ -95,7 +117,7 @@ def sprawdźGrupę(
     if not grupy or not grupa:
         return True
 
-    dostępneGrupy = set(konfiguracja.get("grupy", []))
+    dostępneGrupy = set(pobierzGrupyKonfiguracji())
     obsługiwaneGrupy = [grupa for grupa in grupy if grupa in dostępneGrupy]
 
     if not obsługiwaneGrupy:

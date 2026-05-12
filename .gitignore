@@ -3,9 +3,15 @@
 
 # Prywatna konfiguracja, logi i pliki tymczasowe środowiska Python
 backend/**/__pycache__/
+backend/**/data/
+backend/**/keys/
 backend/**/logs/
+backend/**/*.env
 backend/**/*.json
+backend/**/*.log
 backend/**/*.old
+backend/**/*.p8
+backend/**/*.sqlite3*
 
 # Dane użytkownika generowane przez Xcode
 frontend/**/xcuserdata/

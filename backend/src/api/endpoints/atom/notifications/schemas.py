@@ -9,46 +9,36 @@
 #
 
 # Standardowe biblioteki
-from typing import TypedDict
+import re
 
-class KonfiguracjaListy(TypedDict):
-    url: str
-    kodowanie: str
+# Zewnętrzne biblioteki
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_validator
+)
 
+class TokenPowiadomien(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+    tokenUrządzenia: str = Field(alias="tokenUrzadzenia")
 
-class KonfiguracjaSzkoły(TypedDict):
-    url: str
-    kodowanie: str
+    @field_validator("tokenUrządzenia")
+    @classmethod
+    def walidujTokenUrządzenia(cls, wartość: str) -> str:
+        """
+        Normalizuje i waliduje token urządzenia APNs.
 
+        Args:
+            wartość (str): Token urządzenia przekazany w polu modelu.
 
-class KonfiguracjaOgłoszeń(TypedDict):
-    url: str
-    kodowanie: str
+        Returns:
+            str: Znormalizowany token urządzenia.
+        """
 
+        token = wartość.strip()
 
-class KonfiguracjaPlanów(TypedDict):
-    url: str
-    kodowanie: str
+        if not re.fullmatch(r"[0-9a-fA-F]{64,200}", token):
+            raise ValueError("Nieprawidłowy token urządzenia APNs.")
 
-
-class KonfiguracjaZastępstw(TypedDict):
-    url: str
-    kodowanie: str
-
-
-class KonfiguracjaGrup(TypedDict):
-    zajeciaLekcyjne: list[str]
-    zajeciaPraktyczne: list[str]
-    wychowanieFizyczne: list[str]
-    pozostale: list[str]
-
-
-class Konfiguracja(TypedDict):
-    wersja: str
-    lista: KonfiguracjaListy
-    szkola: KonfiguracjaSzkoły
-    ogloszenia: KonfiguracjaOgłoszeń
-    plany: KonfiguracjaPlanów
-    zastepstwa: KonfiguracjaZastępstw
-    grupy: KonfiguracjaGrup
-    skrocone: dict[str, str]
+        return token.lower()
