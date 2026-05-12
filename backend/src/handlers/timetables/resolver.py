@@ -19,7 +19,7 @@ import aiohttp
 
 # Wewnętrzne importy
 from src.classes.semaphore import semafor
-from src.classes.types.timetables import ElementPlanu
+from src.types.timetables import ElementPlanu
 from src.handlers.configuration import konfiguracja
 from src.handlers.timetables.helpers import (
     wyodrębnijIdentyfikator,

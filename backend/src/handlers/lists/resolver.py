@@ -19,7 +19,7 @@ import aiohttp
 
 # Wewnętrzne importy
 from src.classes.semaphore import semafor
-from src.classes.types.lists import ElementListy
+from src.types.lists import ElementListy
 from src.handlers.configuration import konfiguracja
 from src.handlers.logging import logowanie
 from src.handlers.scraper import pobierzZawartośćStrony

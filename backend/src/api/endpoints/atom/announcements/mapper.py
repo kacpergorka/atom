@@ -13,7 +13,7 @@ from src.api.endpoints.atom.announcements.schemas import (
     AtomoweOgloszenia,
     AtomoweOgloszenie
 )
-from src.classes.types.announcements import (
+from src.types.announcements import (
     Ogłoszenia as SuroweOgłoszenia,
     Ogłoszenie as SuroweOgłoszenie
 )

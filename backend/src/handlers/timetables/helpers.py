@@ -12,7 +12,7 @@
 from urllib.parse import urlparse
 
 # Wewnętrzne importy
-from src.classes.types.timetables import ElementPlanu
+from src.types.timetables import ElementPlanu
 
 def wyodrębnijIdentyfikator(url: str | None) -> str | None:
     """

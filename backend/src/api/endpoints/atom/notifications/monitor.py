@@ -19,7 +19,7 @@ from src.api.endpoints.universal.numbers.service import pobierzSzczęśliweNumer
 from src.api.endpoints.universal.substitutions.service import pobierzZastępstwa
 from src.handlers.logging import logowanie
 from src.handlers.notifications import database
-from src.classes.types.notifications import PreferencjePowiadomień
+from src.types.notifications import PreferencjePowiadomień
 
 def utwórzOdcisk(dane: object) -> str:
     """

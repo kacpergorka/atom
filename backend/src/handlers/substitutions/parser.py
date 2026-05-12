@@ -22,8 +22,8 @@ from bs4 import (
 )
 
 # Wewnętrzne importy
-from src.classes.types.lists import ElementListy
-from src.classes.types.substitutions import (
+from src.types.lists import ElementListy
+from src.types.substitutions import (
     Zastępstwa,
     Zastępstwo
 )

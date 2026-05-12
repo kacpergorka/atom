@@ -14,7 +14,7 @@ from asyncio import to_thread
 
 # Wewnętrzne importy
 from src.handlers.database import połączBazęDanych
-from src.classes.types.notifications import PreferencjePowiadomień
+from src.types.notifications import PreferencjePowiadomień
 
 kolumnyPreferencji = """
     identyfikator_uzytkownika,

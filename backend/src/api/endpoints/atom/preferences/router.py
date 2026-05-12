@@ -24,7 +24,7 @@ from src.handlers.accounts.auth import (
     pobierzAktualnegoUżytkownika
 )
 from src.handlers.accounts.limits import ograniczŻądania
-from src.classes.types.notifications import PreferencjePowiadomień
+from src.types.notifications import PreferencjePowiadomień
 
 router = APIRouter(
     prefix="/preferencje",

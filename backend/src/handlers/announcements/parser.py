@@ -19,7 +19,7 @@ from bs4 import (
 )
 
 # Wewnętrzne importy
-from src.classes.types.announcements import (
+from src.types.announcements import (
     Ogłoszenia,
     Ogłoszenie
 )

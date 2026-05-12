@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any
 
 # Wewnętrzne importy
-from src.classes.types.configuration import Konfiguracja
+from src.types.configuration import Konfiguracja
 from src.handlers.logging import logowanie
 
 def wczytajKonfiguracje() -> Konfiguracja:

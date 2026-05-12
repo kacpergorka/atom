@@ -16,8 +16,8 @@ import aiohttp
 
 # Wewnętrzne importy
 from src.classes.semaphore import semafor
-from src.classes.types.lists import ElementListy
-from src.classes.types.substitutions import Zastępstwo
+from src.types.lists import ElementListy
+from src.types.substitutions import Zastępstwo
 from src.handlers.configuration import konfiguracja
 from src.handlers.helpers import sprawdźGrupę
 from src.handlers.logging import logowanie

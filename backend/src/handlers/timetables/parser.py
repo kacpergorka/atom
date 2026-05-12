@@ -24,8 +24,8 @@ from bs4 import (
 )
 
 # Wewnętrzne importy
-from src.classes.types.lists import ElementListy
-from src.classes.types.timetables import (
+from src.types.lists import ElementListy
+from src.types.timetables import (
     ElementPlanu,
     Lekcja,
     PlanLekcji

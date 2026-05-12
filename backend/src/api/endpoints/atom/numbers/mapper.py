@@ -10,7 +10,7 @@
 
 # Wewnętrzne importy
 from src.api.endpoints.atom.numbers.schemas import AtomoweSzczesliweNumerki
-from src.classes.types.numbers import SzczęśliweNumerki as SuroweSzczęśliweNumerki
+from src.types.numbers import SzczęśliweNumerki as SuroweSzczęśliweNumerki
 
 def mapujSzczęśliweNumerki(dane: SuroweSzczęśliweNumerki) -> AtomoweSzczesliweNumerki:
     """

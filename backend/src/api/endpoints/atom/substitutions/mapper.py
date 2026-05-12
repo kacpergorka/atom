@@ -13,7 +13,7 @@ from src.api.endpoints.atom.substitutions.schemas import (
     AtomoweZastepstwo,
     AtomoweZastepstwa
 )
-from src.classes.types.substitutions import (
+from src.types.substitutions import (
     Zastępstwo as SuroweZastępstwo,
     Zastępstwa as SuroweZastępstwa
 )

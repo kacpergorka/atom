@@ -12,8 +12,8 @@
 from collections import defaultdict
 
 # Wewnętrzne importy
-from src.classes.types.substitutions import Zastępstwa
-from src.classes.types.timetables import PlanLekcji
+from src.types.substitutions import Zastępstwa
+from src.types.timetables import PlanLekcji
 from src.handlers.configuration import konfiguracja
 from src.handlers.logging import logowanie
 

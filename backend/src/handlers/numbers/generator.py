@@ -14,7 +14,7 @@ import random
 from zoneinfo import ZoneInfo
 
 # Wewnętrzne importy
-from src.classes.types.numbers import SzczęśliweNumerki
+from src.types.numbers import SzczęśliweNumerki
 from src.handlers.logging import logowanie
 
 async def wygenerujSzczęśliweNumerki(dzieńWolny: bool) -> SzczęśliweNumerki:

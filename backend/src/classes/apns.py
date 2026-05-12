@@ -17,7 +17,7 @@ import httpx
 import jwt
 
 # Wewnętrzne importy
-from src.classes.types.notifications import (
+from src.types.notifications import (
     KonfiguracjaAPNs,
     WynikAPNs
 )

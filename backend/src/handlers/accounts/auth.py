@@ -38,7 +38,7 @@ from jwt.exceptions import (
 )
 
 # Wewnętrzne importy
-from src.classes.types.accounts import AktualnyUżytkownik
+from src.types.accounts import AktualnyUżytkownik
 from src.handlers.logging import logowanie
 
 maksymalnaDługośćIdentyfikatoraUżytkownika = 128
