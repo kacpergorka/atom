@@ -25,7 +25,7 @@ from fastapi import (
 from redis.exceptions import RedisError
 
 # Wewnętrzne importy
-from src.classes.atom import atom
+from src.classes.atom import klientAtom
 from src.handlers.accounts.auth import pobierzAktualnegoUżytkownika
 from src.models.accounts import AktualnyUżytkownik
 
@@ -49,11 +49,11 @@ async def sprawdźLimit(
         bool: True, jeśli limit nie został przekroczony.
     """
 
-    if atom.redis is not None:
+    if klientAtom.redis is not None:
         try:
-            liczba = await atom.redis.incr(klucz)
+            liczba = await klientAtom.redis.incr(klucz)
             if liczba == 1:
-                await atom.redis.expire(klucz, czasPrzedziału)
+                await klientAtom.redis.expire(klucz, czasPrzedziału)
 
             return liczba <= maksimum
         except RedisError:

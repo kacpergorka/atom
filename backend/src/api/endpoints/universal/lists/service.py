@@ -14,7 +14,7 @@ from src.api.exceptions import (
     BrakWymaganychDanych,
     ŹródłoNiedostępne
 )
-from src.classes.atom import atom
+from src.classes.atom import klientAtom
 from src.classes.semaphore import semafor
 from src.handlers.cache import (
     pobierzModel,
@@ -66,9 +66,9 @@ async def pobierzListy(
             listy = cacheList
         else:
             async with semafor:
-                zawartośćStrony = await pobierzZawartośćStrony(atom.sesja, url, kodowanie)
+                zawartośćStrony = await pobierzZawartośćStrony(klientAtom.sesja, url, kodowanie)
 
-            listy = Listy(**await wyodrębnijListy(atom.sesja, zawartośćStrony, url))
+            listy = Listy(**await wyodrębnijListy(klientAtom.sesja, zawartośćStrony, url))
             await zapiszModel(kluczCache, listy)
 
         if not oddzialy and not nauczyciele and not sale:

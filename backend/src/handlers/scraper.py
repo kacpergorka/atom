@@ -19,7 +19,7 @@ from bs4 import BeautifulSoup
 from src.handlers.logging import logowanie
 
 async def pobierzZawartośćStrony(
-    atom: aiohttp.ClientSession,
+    klientAtom: aiohttp.ClientSession,
     url: str,
     kodowanie: str,
     parametry: dict[str, str | int] | None = None
@@ -28,7 +28,7 @@ async def pobierzZawartośćStrony(
     Pobiera zawartość strony internetowej.
 
     Args:
-        atom (aiohttp.ClientSession): Aktywna sesja HTTP używana do wykonania zapytania.
+        klientAtom (aiohttp.ClientSession): Aktywna sesja HTTP używana do wykonania zapytania.
         url (str): Adres strony internetowej przeznaczonej do pobrania.
         kodowanie (str): Kodowanie strony internetowej potrzebne do prawidłowego odczytu jej treści.
         parametry (dict[str, str | int] | None): Słownik parametrów zapytania GET, które zostaną dołączone do adresu URL.
@@ -40,7 +40,7 @@ async def pobierzZawartośćStrony(
     try:
         argumentyŻądania = {"params": parametry} if parametry is not None else {}
 
-        async with atom.get(url, **argumentyŻądania) as odpowiedź:
+        async with klientAtom.get(url, **argumentyŻądania) as odpowiedź:
             odpowiedź.raise_for_status()
             tekst = await odpowiedź.text(
                 encoding=kodowanie,

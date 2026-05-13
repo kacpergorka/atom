@@ -39,7 +39,7 @@ from src.schemas.substitutions import (
 )
 
 async def wyodrębnijZastępstwa(
-    atom: aiohttp.ClientSession,
+    klientAtom: aiohttp.ClientSession,
     zawartośćStrony: BeautifulSoup,
     listaOddziałów: list[ElementListy] | None,
     listaNauczycieli: list[ElementListy] | None,
@@ -52,7 +52,7 @@ async def wyodrębnijZastępstwa(
     Wyodrębnia, przetwarza i filtruje dane zastępstw z pliku strony internetowej.
 
     Args:
-        atom (aiohttp.ClientSession): Aktywna sesja HTTP używana do wykonania zapytania.
+        klientAtom (aiohttp.ClientSession): Aktywna sesja HTTP używana do wykonania zapytania.
         zawartośćStrony (BeautifulSoup): Obiekt BeautifulSoup reprezentujący stronę HTML.
         listaOddziałów (list[ElementListy] | None): Lista wszystkich oddziałów.
         listaNauczycieli (list[ElementListy] | None): Lista wszystkich nauczycieli.
@@ -523,7 +523,7 @@ async def wyodrębnijZastępstwa(
 
                 if wpisyDnia:
                     uzupełnioneWpisy.extend(
-                        await uzupełnijZastępstwa(atom, wpisyDnia, identyfikator, dzień, listaOddziałów, grupy, przedmiotyDodatkowe)
+                        await uzupełnijZastępstwa(klientAtom, wpisyDnia, identyfikator, dzień, listaOddziałów, grupy, przedmiotyDodatkowe)
                     )
 
             uzupełnioneWpisy.extend(

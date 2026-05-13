@@ -21,7 +21,7 @@ from src.api.exceptions import (
     NieprawidłowyIdentyfikator,
     ŹródłoNiedostępne
 )
-from src.classes.atom import atom
+from src.classes.atom import klientAtom
 from src.classes.semaphore import semafor
 from src.handlers.cache import (
     normalizujStanOpcji,
@@ -93,10 +93,10 @@ async def pobierzZastępstwa(
             wybranyOddział, wybranyNauczyciel = wyszukajElement(identyfikator, listaOddziałów, listaNauczycieli)
 
         async with semafor:
-            zawartośćStronyZastępstw = await pobierzZawartośćStrony(atom.sesja, urlZastępstw, kodowanieZastępstw)
+            zawartośćStronyZastępstw = await pobierzZawartośćStrony(klientAtom.sesja, urlZastępstw, kodowanieZastępstw)
 
         przetworzoneZastępstwa = Zastępstwa.model_validate(
-            await wyodrębnijZastępstwa(atom.sesja, zawartośćStronyZastępstw, listaOddziałów, listaNauczycieli, wybranyOddział, wybranyNauczyciel, grupy, przedmiotyDodatkowe)
+            await wyodrębnijZastępstwa(klientAtom.sesja, zawartośćStronyZastępstw, listaOddziałów, listaNauczycieli, wybranyOddział, wybranyNauczyciel, grupy, przedmiotyDodatkowe)
         )
         await zapiszModel(kluczCache, przetworzoneZastępstwa)
         return przetworzoneZastępstwa

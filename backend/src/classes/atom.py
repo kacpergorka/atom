@@ -99,4 +99,4 @@ class Atom:
             finally:
                 self.sesja = None
 
-atom = Atom()
+klientAtom = Atom()

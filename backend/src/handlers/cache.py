@@ -16,7 +16,7 @@ from pydantic import BaseModel
 from redis.exceptions import RedisError
 
 # Wewnętrzne importy
-from src.classes.atom import atom
+from src.classes.atom import klientAtom
 from src.handlers.logging import logowanie
 
 ModelCache = TypeVar("ModelCache", bound=BaseModel)
@@ -50,11 +50,11 @@ async def pobierzModel(
         ModelCache | None: Obiekt modelu Pydantic lub `None`, jeśli wpis nie istnieje, Redis jest niedostępny lub dane w cache są uszkodzone.
     """
 
-    if atom.redis is None:
+    if klientAtom.redis is None:
         return None
 
     try:
-        dane = await atom.redis.get(klucz)
+        dane = await klientAtom.redis.get(klucz)
     except RedisError as e:
         logowanie.warning(
             f"Nie udało się odczytać wpisu cache Redis ({klucz}). Więcej informacji: {e}"
@@ -71,7 +71,7 @@ async def pobierzModel(
             f"Wpis cache Redis ({klucz}) ma nieprawidłowy format. Więcej informacji: {e}"
         )
         try:
-            await atom.redis.delete(klucz)
+            await klientAtom.redis.delete(klucz)
         except RedisError:
             pass
 
@@ -92,11 +92,11 @@ async def zapiszModel(
         czas (int, optional): Czas życia wpisu w cache (TTL) w sekundach.
     """
 
-    if atom.redis is None:
+    if klientAtom.redis is None:
         return
 
     try:
-        await atom.redis.set(klucz, model.model_dump_json(), ex=czas)
+        await klientAtom.redis.set(klucz, model.model_dump_json(), ex=czas)
     except RedisError as e:
         logowanie.warning(
             f"Nie udało się zapisać wpisu cache Redis ({klucz}). Więcej informacji: {e}"

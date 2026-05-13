@@ -26,7 +26,7 @@ from src.schemas.lists import ElementListy
 from src.schemas.substitutions import Zastępstwo
 
 async def uzupełnijZastępstwa(
-    atom: aiohttp.ClientSession,
+    klientAtom: aiohttp.ClientSession,
     wpisyZastępstw: list[Zastępstwo],
     identyfikator: str,
     dzień: str,
@@ -38,7 +38,7 @@ async def uzupełnijZastępstwa(
     Uzupełnia niezidentyfikowane wpisy zastępstw i przetwarza zastępstwa z wybranymi grupami dla konkretnego oddziału, na podstawie jego planu lekcji oraz planu lekcji nauczyciela.
 
     Args:
-        atom (aiohttp.ClientSession): Aktywna sesja HTTP używana do wykonania zapytania.
+        klientAtom (aiohttp.ClientSession): Aktywna sesja HTTP używana do wykonania zapytania.
         wpisyZastępstw (list[Zastępstwo]): Lista wpisów zastępstw.
         identyfikator (str): Identyfikator oddziału.
         dzień (str): Dzień tygodnia, na który wpisane są zastępstwa.
@@ -63,9 +63,9 @@ async def uzupełnijZastępstwa(
 
         url = f"{katalog}{identyfikator}.html"
         async with semafor:
-            zawartośćPlanuOddziału = await pobierzZawartośćStrony(atom, url, kodowanie)
+            zawartośćPlanuOddziału = await pobierzZawartośćStrony(klientAtom, url, kodowanie)
 
-        planLekcjiOddziału = await wyodrębnijPlanLekcji(atom, zawartośćPlanuOddziału, listaOddziałów, grupy, przedmiotyDodatkowe, None, url)
+        planLekcjiOddziału = await wyodrębnijPlanLekcji(klientAtom, zawartośćPlanuOddziału, listaOddziałów, grupy, przedmiotyDodatkowe, None, url)
         if not planLekcjiOddziału:
             logowanie.warning(
                 "Brak planu lekcji oddziału. Zwracanie nieuzupełnionej zawartości."
@@ -107,7 +107,7 @@ async def uzupełnijZastępstwa(
 
                     if urlPlanu not in tymczasowy:
                         async with semafor:
-                            zawartośćPlanuNauczyciela = await pobierzZawartośćStrony(atom, urlPlanu, kodowanie)
+                            zawartośćPlanuNauczyciela = await pobierzZawartośćStrony(klientAtom, urlPlanu, kodowanie)
 
                         etykietaPlanu = zawartośćPlanuNauczyciela.select_one(".tytulnapis")
 

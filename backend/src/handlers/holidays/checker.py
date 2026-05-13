@@ -20,7 +20,7 @@ from zoneinfo import ZoneInfo
 from bs4 import BeautifulSoup
 
 # Wewnętrzne importy
-from src.classes.atom import atom
+from src.classes.atom import klientAtom
 from src.classes.semaphore import semafor
 from src.handlers.logging import logowanie
 from src.handlers.scraper import pobierzZawartośćStrony
@@ -89,7 +89,7 @@ async def sprawdźCzyDzisiajJestWolne(
         """
 
         try:
-            if atom.sesja is None:
+            if klientAtom.sesja is None:
                 logowanie.warning(
                     "Brak aktywnej sesji HTTP. Pomijanie pobierania danych z OpenHolidays API."
                 )
@@ -106,14 +106,14 @@ async def sprawdźCzyDzisiajJestWolne(
             }
 
             async with semafor:
-                async with atom.sesja.get(urlŚwiętaPubliczne, params=parametryOpenHolidays) as odpowiedźŚwiątPublicznych:
+                async with klientAtom.sesja.get(urlŚwiętaPubliczne, params=parametryOpenHolidays) as odpowiedźŚwiątPublicznych:
                     if odpowiedźŚwiątPublicznych.status != 200:
                         daneŚwiątPublicznych = None
                     else:
                         daneŚwiątPublicznych = await odpowiedźŚwiątPublicznych.json()
 
             async with semafor:
-                async with atom.sesja.get(urlŚwiętaSzkolne, params=parametryOpenHolidays) as odpowiedźŚwiątSzkolnych:
+                async with klientAtom.sesja.get(urlŚwiętaSzkolne, params=parametryOpenHolidays) as odpowiedźŚwiątSzkolnych:
                     if odpowiedźŚwiątSzkolnych.status != 200:
                         daneŚwiątSzkolnych = None
                     else:
@@ -174,7 +174,7 @@ async def sprawdźCzyDzisiajJestWolne(
 
     zawartośćStrony = None
 
-    if url and kodowanie and atom.sesja is not None:
+    if url and kodowanie and klientAtom.sesja is not None:
         parametry = {
             "co": "10",
             "funk": "2",
@@ -186,7 +186,7 @@ async def sprawdźCzyDzisiajJestWolne(
 
         try:
             async with semafor:
-                zawartośćStrony = await pobierzZawartośćStrony(atom.sesja, url, kodowanie, parametry)
+                zawartośćStrony = await pobierzZawartośćStrony(klientAtom.sesja, url, kodowanie, parametry)
         except Exception as e:
             logowanie.exception(
                 f"Wystąpił błąd. Nie udało się pobrać danych ze strony internetowej szkoły. Więcej informacji: {e}"

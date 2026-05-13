@@ -35,7 +35,7 @@ from src.api.endpoints.universal.substitutions.router import router as routerZas
 from src.api.endpoints.universal.timetables.router import router as routerPlanówLekcji
 from src.api.handlers import zarejestrujObsługęWyjątków
 from src.classes.apns import klientAPNs
-from src.classes.atom import atom
+from src.classes.atom import klientAtom
 from src.handlers.accounts.database import zainicjalizujBazęKont
 from src.handlers.configuration import konfiguracja
 from src.handlers.logging import logowanie
@@ -59,7 +59,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 
     zadanieMonitoraPowiadomień: asyncio.Task | None = None
     try:
-        await atom.start()
+        await klientAtom.start()
         await zainicjalizujBazęKont()
         await zainicjalizujBazęPowiadomień()
         await zainicjalizujBazęNumerków()
@@ -82,7 +82,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
                 await zadanieMonitoraPowiadomień
 
         await klientAPNs.zamknij()
-        await atom.close()
+        await klientAtom.close()
 
 description = """
 **Stworzone z ❤️ przez Kacpra Górkę!** Projekt jest [otwartoźródłowy](https://github.com/kacpergorka/atom)!

@@ -29,7 +29,7 @@ from src.handlers.logging import logowanie
 from src.schemas.timetables import ElementPlanu
 
 async def uzupełnijNauczyciela(
-    atom: aiohttp.ClientSession,
+    klientAtom: aiohttp.ClientSession,
     url: str | None,
     dniTygodnia: list[str],
     dzień: str,
@@ -39,7 +39,7 @@ async def uzupełnijNauczyciela(
     Uzupełnia dane nauczyciela dla konkretnej lekcji w planie oddziału na podstawie URL do strony planu lekcji sali.
 
     Args:
-        atom (aiohttp.ClientSession): Aktywna sesja HTTP używana do wykonania zapytania.
+        klientAtom (aiohttp.ClientSession): Aktywna sesja HTTP używana do wykonania zapytania.
         url (str | None): Adres strony planu lekcji sali.
         dniTygodnia (list[str]): Lista dni tygodnia.
         dzień (str): Dzień tygodnia, w którym odbywa się lekcja.
@@ -67,7 +67,7 @@ async def uzupełnijNauczyciela(
             return zwróćPustySłownik()
 
         async with semafor:
-            zawartośćStrony = await pobierzZawartośćStrony(atom, url, kodowanie)
+            zawartośćStrony = await pobierzZawartośćStrony(klientAtom, url, kodowanie)
 
         tabela = zawartośćStrony.select_one("table.tabela")
         if not tabela:

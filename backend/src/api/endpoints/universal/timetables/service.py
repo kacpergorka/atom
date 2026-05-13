@@ -22,7 +22,7 @@ from src.api.exceptions import (
     NieprawidłowyIdentyfikator,
     ŹródłoNiedostępne
 )
-from src.classes.atom import atom
+from src.classes.atom import klientAtom
 from src.classes.semaphore import semafor
 from src.handlers.cache import (
     pobierzModel,
@@ -123,10 +123,10 @@ async def pobierzPlanLekcji(
                 cache = False
 
         async with semafor:
-            zawartośćStronyPlanu = await pobierzZawartośćStrony(atom.sesja, urlPlanu, kodowaniePlanów)
+            zawartośćStronyPlanu = await pobierzZawartośćStrony(klientAtom.sesja, urlPlanu, kodowaniePlanów)
 
         planLekcji = PlanLekcji.model_validate(
-            await wyodrębnijPlanLekcji(atom.sesja, zawartośćStronyPlanu, listaOddziałów, grupy, przedmiotyDodatkowe, zastepstwa, urlPlanu)
+            await wyodrębnijPlanLekcji(klientAtom.sesja, zawartośćStronyPlanu, listaOddziałów, grupy, przedmiotyDodatkowe, zastepstwa, urlPlanu)
         )
         planLekcji = planLekcji.model_copy(update={"wolne": await pobierzStatusDniaWolnego()})
 

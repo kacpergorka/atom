@@ -28,7 +28,7 @@ from src.handlers.logging import logowanie
 from src.schemas.lists import Listy
 
 async def wyodrębnijListy(
-    atom: aiohttp.ClientSession,
+    klientAtom: aiohttp.ClientSession,
     zawartośćStrony: BeautifulSoup,
     url: str | None
 ) -> Listy:
@@ -36,7 +36,7 @@ async def wyodrębnijListy(
     Wyodrębnia listy oddziałów, nauczycieli oraz sal z pliku strony internetowej.
 
     Args:
-        atom (aiohttp.ClientSession): Aktywna sesja HTTP używana do wykonania zapytania.
+        klientAtom (aiohttp.ClientSession): Aktywna sesja HTTP używana do wykonania zapytania.
         zawartośćStrony (BeautifulSoup): Obiekt BeautifulSoup reprezentujący stronę HTML.
         url (str | None): Adres strony internetowej zawierającej listy użyty do pobrania ich zawartości.
 
@@ -181,7 +181,7 @@ async def wyodrębnijListy(
 
         brakująceIdentyfikatory = znajdźBrakująceIdentyfikatory(oddziały)
         if brakująceIdentyfikatory:
-            oddziały = await uzupełnijBrakująceOddziały(atom, oddziały, brakująceIdentyfikatory)
+            oddziały = await uzupełnijBrakująceOddziały(klientAtom, oddziały, brakująceIdentyfikatory)
 
         oddziały.sort(key=itemgetter("nazwa"))
         sale.sort(key=itemgetter("nazwa"))

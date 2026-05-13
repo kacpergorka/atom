@@ -26,7 +26,7 @@ from src.handlers.timetables.parser import wyodrębnijPlanLekcji
 from src.schemas.lists import ElementListy
 
 async def uzupełnijBrakująceOddziały(
-    atom: aiohttp.ClientSession,
+    klientAtom: aiohttp.ClientSession,
     oddziały: list[ElementListy],
     brakująceIdentyfikatory: list[str]
 ) -> list[ElementListy]:
@@ -34,7 +34,7 @@ async def uzupełnijBrakująceOddziały(
     Uzupełnia luki w liście oddziałów, sprawdzając wskazane brakujące strony planów lekcji.
 
     Args:
-        atom (aiohttp.ClientSession): Aktywna sesja HTTP używana do wykonania zapytania.
+        klientAtom (aiohttp.ClientSession): Aktywna sesja HTTP używana do wykonania zapytania.
         oddziały (list[ElementListy]): Lista oddziałów zwrócona przez parser list.
         brakująceIdentyfikatory (list[str]): Identyfikatory oddziałów, których brakuje w liście.
 
@@ -79,7 +79,7 @@ async def uzupełnijBrakująceOddziały(
         }
 
     async def pobierzBrakującyOddział(
-        atom: aiohttp.ClientSession,
+        klientAtom: aiohttp.ClientSession,
         identyfikator: str,
         katalog: str,
         kodowanie: str,
@@ -89,7 +89,7 @@ async def uzupełnijBrakująceOddziały(
         Próbuje pobrać i sparsować plan lekcji dla brakującego identyfikatora oddziału.
 
         Args:
-            atom (aiohttp.ClientSession): Aktywna sesja HTTP używana do wykonania zapytania.
+            klientAtom (aiohttp.ClientSession): Aktywna sesja HTTP używana do wykonania zapytania.
             identyfikator (str): Brakujący identyfikator oddziału.
             katalog (str): Bazowy URL katalogu planów lekcji.
             kodowanie (str): Kodowanie stron planów lekcji.
@@ -103,9 +103,9 @@ async def uzupełnijBrakująceOddziały(
 
         try:
             async with semafor:
-                zawartośćStrony = await pobierzZawartośćStrony(atom, url, kodowanie)
+                zawartośćStrony = await pobierzZawartośćStrony(klientAtom, url, kodowanie)
 
-            plan = await wyodrębnijPlanLekcji(atom, zawartośćStrony, oddziały, None, None, False, url)
+            plan = await wyodrębnijPlanLekcji(klientAtom, zawartośćStrony, oddziały, None, None, False, url)
             identyfikatorPlanu = plan.get("identyfikator")
             kategoriaPlanu = plan.get("kategoria")
 
@@ -138,7 +138,7 @@ async def uzupełnijBrakująceOddziały(
             paczka = brakująceIdentyfikatory[indeks:indeks + 20]
             wyniki.extend(
                 await asyncio.gather(*[
-                    pobierzBrakującyOddział(atom, identyfikator, katalog, kodowanie, oddziały)
+                    pobierzBrakującyOddział(klientAtom, identyfikator, katalog, kodowanie, oddziały)
                     for identyfikator in paczka
                 ])
             )

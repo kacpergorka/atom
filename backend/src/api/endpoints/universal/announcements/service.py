@@ -22,7 +22,7 @@ from src.api.exceptions import (
     BrakWymaganychDanych,
     ŹródłoNiedostępne
 )
-from src.classes.atom import atom
+from src.classes.atom import klientAtom
 from src.classes.semaphore import semafor
 from src.handlers.announcements.parser import wyodrębnijOgłoszenia
 from src.handlers.cache import (
@@ -102,7 +102,7 @@ async def pobierzOgłoszenia(strona: int) -> Ogłoszenia:
             return cacheOgłoszeń
 
         async with semafor:
-            zawartośćStrony = await pobierzZawartośćStrony(atom.sesja, urlStrony, kodowanie)
+            zawartośćStrony = await pobierzZawartośćStrony(klientAtom.sesja, urlStrony, kodowanie)
 
         dane = wyodrębnijOgłoszenia(zawartośćStrony, urlStrony)
         przetworzoneOgłoszenia = Ogłoszenia.model_validate(dane)

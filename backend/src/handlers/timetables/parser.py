@@ -43,7 +43,7 @@ from src.schemas.timetables import (
 )
 
 async def wyodrębnijPlanLekcji(
-    atom: aiohttp.ClientSession,
+    klientAtom: aiohttp.ClientSession,
     zawartośćStrony: BeautifulSoup,
     listaOddziałów: list[ElementListy] | None,
     grupy: list[str] | None,
@@ -55,7 +55,7 @@ async def wyodrębnijPlanLekcji(
     Wyodrębnia, przetwarza i strukturyzuje dane planu lekcji z pliku strony internetowej.
 
     Args:
-        atom (aiohttp.ClientSession): Aktywna sesja HTTP używana do wykonania zapytania.
+        klientAtom (aiohttp.ClientSession): Aktywna sesja HTTP używana do wykonania zapytania.
         zawartośćStrony (BeautifulSoup): Obiekt BeautifulSoup reprezentujący stronę HTML.
         listaOddziałów (list[ElementListy] | None): Lista wszystkich oddziałów.
         grupy (list[str] | None): Lista oznaczeń określających grupę przedmiotów.
@@ -613,7 +613,7 @@ async def wyodrębnijPlanLekcji(
 
             wyniki.extend(
                 await asyncio.gather(*[
-                    uzupełnijNauczyciela(atom, urlSali, dniTygodnia, dzień, numer)
+                    uzupełnijNauczyciela(klientAtom, urlSali, dniTygodnia, dzień, numer)
                     for urlSali, dzień, numer in paczka
                 ])
             )
