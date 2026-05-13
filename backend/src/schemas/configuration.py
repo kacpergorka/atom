@@ -11,71 +11,72 @@
 # Zewnętrzne biblioteki
 from pydantic import BaseModel
 
-class Data(BaseModel):
+class KonfiguracjaListy(BaseModel):
     """
-    Słownik zakresu obowiązywania planu lekcji.
-    """
-
-    obowiazuje: str | None
-    wygasa: str | None
-
-
-class ZastępstwoPlanu(BaseModel):
-    """
-    Słownik zastępstwa przypisanego do lekcji w planie.
+    Schemat konfiguracji list planu lekcji.
     """
 
-    nauczyciel: str | None
-    opis: str | None
-    uwagi: str | None
-
-
-class ElementPlanu(BaseModel):
-    """
-    Słownik elementu powiązanego z planem lekcji.
-    """
-
-    tekst: str | None
-    url: str | None
-    identyfikator: str | None
-
-
-class Lekcja(BaseModel):
-    """
-    Słownik lekcji w planie lekcji.
-    """
-
-    przedmiot: str
-    grupa: str | None
-    nauczyciel: ElementPlanu | None
-    sala: ElementPlanu | None
-    oddzialy: list[ElementPlanu] | None
-    zastepstwo: ZastępstwoPlanu | None
-
-
-class WpisPlanu(BaseModel):
-    """
-    Słownik wpisu godziny lekcyjnej w planie.
-    """
-
-    numer: int
-    poczatek: str
-    koniec: str
-    lekcje: list[Lekcja]
-
-PlanTygodniowy = dict[str, list[WpisPlanu]]
-
-class PlanLekcji(BaseModel):
-    """
-    Słownik planu lekcji.
-    """
-
-    nazwa: str
-    kategoria: str | None
     url: str
-    identyfikator: str | None
-    wygenerowano: str | None
-    data: Data
-    wolne: bool
-    zastepstwa: bool
-    plan: PlanTygodniowy | None
+    kodowanie: str
+
+
+class KonfiguracjaSzkoły(BaseModel):
+    """
+    Schemat konfiguracji strony szkoły.
+    """
+
+    url: str
+    kodowanie: str
+
+
+class KonfiguracjaOgłoszeń(BaseModel):
+    """
+    Schemat konfiguracji ogłoszeń.
+    """
+
+    url: str
+    kodowanie: str
+
+
+class KonfiguracjaPlanów(BaseModel):
+    """
+    Schemat konfiguracji planów lekcji.
+    """
+
+    url: str
+    kodowanie: str
+
+
+class KonfiguracjaZastępstw(BaseModel):
+    """
+    Schemat konfiguracji zastępstw.
+    """
+
+    url: str
+    kodowanie: str
+
+
+class KonfiguracjaGrup(BaseModel):
+    """
+    Schemat konfiguracji grup lekcyjnych.
+    """
+
+    zajeciaLekcyjne: list[str]
+    zajeciaPraktyczne: list[str]
+    wychowanieFizyczne: list[str]
+    pozostale: list[str]
+
+
+class Konfiguracja(BaseModel):
+    """
+    Schemat pełnej konfiguracji backendu.
+    """
+
+    wersja: str
+    lista: KonfiguracjaListy
+    szkola: KonfiguracjaSzkoły
+    ogloszenia: KonfiguracjaOgłoszeń
+    plany: KonfiguracjaPlanów
+    zastepstwa: KonfiguracjaZastępstw
+    grupy: KonfiguracjaGrup
+    skrocone: dict[str, str]

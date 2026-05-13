@@ -14,7 +14,7 @@ import random
 from zoneinfo import ZoneInfo
 
 # Wewnętrzne importy
-from src.types.numbers import SzczęśliweNumerki
+from src.schemas.numbers import SzczęśliweNumerki
 
 async def wygenerujSzczęśliweNumerki(dzieńWolny: bool) -> SzczęśliweNumerki:
     """

@@ -38,8 +38,8 @@ from jwt.exceptions import (
 )
 
 # Wewnętrzne importy
-from src.types.accounts import AktualnyUżytkownik
 from src.handlers.logging import logowanie
+from src.models.accounts import AktualnyUżytkownik
 
 maksymalnaDługośćIdentyfikatoraUżytkownika = 128
 minimalnaDługośćSekretuHmac = 32

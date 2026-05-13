@@ -12,10 +12,10 @@
 from collections import defaultdict
 
 # Wewnętrzne importy
-from src.types.substitutions import Zastępstwa
-from src.types.timetables import PlanLekcji
 from src.handlers.configuration import konfiguracja
 from src.handlers.logging import logowanie
+from src.schemas.substitutions import Zastępstwa
+from src.schemas.timetables import PlanLekcji
 
 def zbudujPlanLekcji(
     planLekcji: PlanLekcji,

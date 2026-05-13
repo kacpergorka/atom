@@ -22,11 +22,6 @@ from bs4 import (
 )
 
 # Wewnętrzne importy
-from src.types.lists import ElementListy
-from src.types.substitutions import (
-    Zastępstwa,
-    Zastępstwo
-)
 from src.handlers.helpers import (
     posortujNauczycieli,
     wyczyśćTekst as wyczyśćTekstZastępstw
@@ -37,6 +32,11 @@ from src.handlers.substitutions.helpers import (
     zwróćNazwyKluczy
 )
 from src.handlers.substitutions.resolver import uzupełnijZastępstwa
+from src.schemas.lists import ElementListy
+from src.schemas.substitutions import (
+    Zastępstwa,
+    Zastępstwo
+)
 
 async def wyodrębnijZastępstwa(
     atom: aiohttp.ClientSession,

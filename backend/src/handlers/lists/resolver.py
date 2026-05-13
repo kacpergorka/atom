@@ -19,11 +19,11 @@ import aiohttp
 
 # Wewnętrzne importy
 from src.classes.semaphore import semafor
-from src.types.lists import ElementListy
 from src.handlers.configuration import konfiguracja
 from src.handlers.logging import logowanie
 from src.handlers.scraper import pobierzZawartośćStrony
 from src.handlers.timetables.parser import wyodrębnijPlanLekcji
+from src.schemas.lists import ElementListy
 
 async def uzupełnijBrakująceOddziały(
     atom: aiohttp.ClientSession,

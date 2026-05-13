@@ -16,14 +16,14 @@ import aiohttp
 
 # Wewnętrzne importy
 from src.classes.semaphore import semafor
-from src.types.lists import ElementListy
-from src.types.substitutions import Zastępstwo
 from src.handlers.configuration import konfiguracja
 from src.handlers.helpers import sprawdźGrupę
 from src.handlers.logging import logowanie
 from src.handlers.scraper import pobierzZawartośćStrony
 from src.handlers.substitutions.helpers import zwróćNazwyKluczy
 from src.handlers.timetables.parser import wyodrębnijPlanLekcji
+from src.schemas.lists import ElementListy
+from src.schemas.substitutions import Zastępstwo
 
 async def uzupełnijZastępstwa(
     atom: aiohttp.ClientSession,

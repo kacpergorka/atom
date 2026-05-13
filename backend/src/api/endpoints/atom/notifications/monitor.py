@@ -19,7 +19,7 @@ from src.api.endpoints.universal.numbers.service import pobierzSzczęśliweNumer
 from src.api.endpoints.universal.substitutions.service import pobierzZastępstwa
 from src.handlers.logging import logowanie
 from src.handlers.notifications import database
-from src.types.notifications import PreferencjePowiadomień
+from src.models.notifications import PreferencjePowiadomień as AtomowePreferencjePowiadomień
 
 def utwórzOdcisk(dane: object) -> str:
     """
@@ -36,7 +36,7 @@ def utwórzOdcisk(dane: object) -> str:
     return hashlib.sha256(tekst.encode("utf-8")).hexdigest()
 
 
-async def monitorujNumerki(preferencje: list[PreferencjePowiadomień]) -> None:
+async def monitorujNumerki(preferencje: list[AtomowePreferencjePowiadomień]) -> None:
     """
     Wykrywa zmianę szczęśliwego numerka i wysyła powiadomienia do dopasowanych użytkowników.
 
@@ -73,7 +73,7 @@ async def monitorujNumerki(preferencje: list[PreferencjePowiadomień]) -> None:
     await database.zapiszStanMonitora(klucz, nowyOdcisk)
 
 
-async def monitorujZastępstwa(preferencje: list[PreferencjePowiadomień]) -> None:
+async def monitorujZastępstwa(preferencje: list[AtomowePreferencjePowiadomień]) -> None:
     """
     Wykrywa zmianę zastępstw oraz informacji dodatkowych i wysyła powiadomienia do dopasowanych użytkowników.
 

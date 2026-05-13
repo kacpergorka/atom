@@ -19,7 +19,6 @@ import aiohttp
 
 # Wewnętrzne importy
 from src.classes.semaphore import semafor
-from src.types.timetables import ElementPlanu
 from src.handlers.configuration import konfiguracja
 from src.handlers.timetables.helpers import (
     wyodrębnijIdentyfikator,
@@ -27,6 +26,7 @@ from src.handlers.timetables.helpers import (
 )
 from src.handlers.scraper import pobierzZawartośćStrony
 from src.handlers.logging import logowanie
+from src.schemas.timetables import ElementPlanu
 
 async def uzupełnijNauczyciela(
     atom: aiohttp.ClientSession,

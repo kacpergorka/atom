@@ -13,7 +13,7 @@ from src.api.endpoints.atom.lists.schemas import (
     AtomowyElementListy,
     AtomoweListy
 )
-from src.types.lists import (
+from src.schemas.lists import (
     ElementListy as SurowyElementListy,
     Listy as SuroweListy
 )

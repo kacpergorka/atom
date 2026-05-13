@@ -21,11 +21,11 @@ import aiohttp
 from bs4 import BeautifulSoup
 
 # Wewnętrzne importy
-from src.types.lists import Listy
 from src.handlers.configuration import konfiguracja
 from src.handlers.helpers import posortujNauczycieli
 from src.handlers.lists.resolver import uzupełnijBrakująceOddziały
 from src.handlers.logging import logowanie
+from src.schemas.lists import Listy
 
 async def wyodrębnijListy(
     atom: aiohttp.ClientSession,

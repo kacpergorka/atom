@@ -13,7 +13,7 @@ from pydantic import BaseModel
 
 class Zastępstwo(BaseModel):
     """
-    Słownik pojedynczego zastępstwa.
+    Schemat pojedynczego zastępstwa.
     """
 
     zidentyfikowane: bool
@@ -28,7 +28,7 @@ class Zastępstwo(BaseModel):
 
 class Zastępstwa(BaseModel):
     """
-    Słownik listy zastępstw.
+    Schemat listy zastępstw.
     """
 
     identyfikator: str | None

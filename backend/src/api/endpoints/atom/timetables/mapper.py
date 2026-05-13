@@ -16,7 +16,7 @@ from src.api.endpoints.atom.timetables.schemas import (
     AtomowaLekcja,
     AtomowyPlanLekcji
 )
-from src.types.timetables import (
+from src.schemas.timetables import (
     ElementPlanu as SurowyElementPlanu,
     PlanLekcji as SurowyPlanLekcji
 )

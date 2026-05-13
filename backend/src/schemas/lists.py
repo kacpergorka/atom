@@ -11,25 +11,22 @@
 # Zewnętrzne biblioteki
 from pydantic import BaseModel
 
-class Ogłoszenie(BaseModel):
+class ElementListy(BaseModel):
     """
-    Słownik ogłoszenia odczytanego ze strony szkoły.
+    Schemat elementu listy planu lekcji.
     """
 
-    identyfikator: str
-    tytul: str
-    stopka: str | None
     url: str
-    obraz: str | None
+    identyfikator: str
+    nazwa: str
+    rozwiniecie: str
 
 
-class Ogłoszenia(BaseModel):
+class Listy(BaseModel):
     """
-    Słownik listy ogłoszeń odczytanej ze strony szkoły.
+    Schemat list oddziałów, nauczycieli i sal.
     """
 
-    aktualnaStrona: int
-    ostatniaStrona: int
-    poprzedniaStrona: str | None
-    nastepnaStrona: str | None
-    ogloszenia: list[Ogłoszenie]
+    oddzialy: list[ElementListy] | None
+    nauczyciele: list[ElementListy] | None
+    sale: list[ElementListy] | None

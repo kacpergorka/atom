@@ -11,11 +11,25 @@
 # Zewnętrzne biblioteki
 from pydantic import BaseModel
 
-class SzczęśliweNumerki(BaseModel):
+class Ogłoszenie(BaseModel):
     """
-    Słownik szczęśliwych numerków.
+    Schemat ogłoszenia odczytanego ze strony szkoły.
     """
 
-    data: str
-    numerki: tuple[int, int] | None
-    informacja: str | None
+    identyfikator: str
+    tytul: str
+    stopka: str | None
+    url: str
+    obraz: str | None
+
+
+class Ogłoszenia(BaseModel):
+    """
+    Schemat listy ogłoszeń odczytanej ze strony szkoły.
+    """
+
+    aktualnaStrona: int
+    ostatniaStrona: int
+    poprzedniaStrona: str | None
+    nastepnaStrona: str | None
+    ogloszenia: list[Ogłoszenie]

@@ -11,72 +11,71 @@
 # Zewnętrzne biblioteki
 from pydantic import BaseModel
 
-class KonfiguracjaListy(BaseModel):
+class Data(BaseModel):
     """
-    Słownik konfiguracji list planu lekcji.
+    Schemat zakresu obowiązywania planu lekcji.
     """
 
+    obowiazuje: str | None
+    wygasa: str | None
+
+
+class ZastępstwoPlanu(BaseModel):
+    """
+    Schemat zastępstwa przypisanego do lekcji w planie.
+    """
+
+    nauczyciel: str | None
+    opis: str | None
+    uwagi: str | None
+
+
+class ElementPlanu(BaseModel):
+    """
+    Schemat elementu powiązanego z planem lekcji.
+    """
+
+    tekst: str | None
+    url: str | None
+    identyfikator: str | None
+
+
+class Lekcja(BaseModel):
+    """
+    Schemat lekcji w planie lekcji.
+    """
+
+    przedmiot: str
+    grupa: str | None
+    nauczyciel: ElementPlanu | None
+    sala: ElementPlanu | None
+    oddzialy: list[ElementPlanu] | None
+    zastepstwo: ZastępstwoPlanu | None
+
+
+class WpisPlanu(BaseModel):
+    """
+    Schemat wpisu godziny lekcyjnej w planie.
+    """
+
+    numer: int
+    poczatek: str
+    koniec: str
+    lekcje: list[Lekcja]
+
+PlanTygodniowy = dict[str, list[WpisPlanu]]
+
+class PlanLekcji(BaseModel):
+    """
+    Schemat planu lekcji.
+    """
+
+    nazwa: str
+    kategoria: str | None
     url: str
-    kodowanie: str
-
-
-class KonfiguracjaSzkoły(BaseModel):
-    """
-    Słownik konfiguracji strony szkoły.
-    """
-
-    url: str
-    kodowanie: str
-
-
-class KonfiguracjaOgłoszeń(BaseModel):
-    """
-    Słownik konfiguracji ogłoszeń.
-    """
-
-    url: str
-    kodowanie: str
-
-
-class KonfiguracjaPlanów(BaseModel):
-    """
-    Słownik konfiguracji planów lekcji.
-    """
-
-    url: str
-    kodowanie: str
-
-
-class KonfiguracjaZastępstw(BaseModel):
-    """
-    Słownik konfiguracji zastępstw.
-    """
-
-    url: str
-    kodowanie: str
-
-
-class KonfiguracjaGrup(BaseModel):
-    """
-    Słownik konfiguracji grup lekcyjnych.
-    """
-
-    zajeciaLekcyjne: list[str]
-    zajeciaPraktyczne: list[str]
-    wychowanieFizyczne: list[str]
-    pozostale: list[str]
-
-
-class Konfiguracja(BaseModel):
-    """
-    Słownik pełnej konfiguracji backendu.
-    """
-
-    wersja: str
-    lista: KonfiguracjaListy
-    szkola: KonfiguracjaSzkoły
-    ogloszenia: KonfiguracjaOgłoszeń
-    plany: KonfiguracjaPlanów
-    zastepstwa: KonfiguracjaZastępstw
-    grupy: KonfiguracjaGrup
-    skrocone: dict[str, str]
+    identyfikator: str | None
+    wygenerowano: str | None
+    data: Data
+    wolne: bool
+    zastepstwa: bool
+    plan: PlanTygodniowy | None

@@ -25,7 +25,7 @@ from src.api.endpoints.atom.accounts.service import (
 from src.handlers.accounts import database
 from src.handlers.accounts.auth import pobierzAktualnegoUżytkownika
 from src.handlers.accounts.limits import ograniczŻądania
-from src.types.accounts import AktualnyUżytkownik
+from src.models.accounts import AktualnyUżytkownik as AtomowyAktualnyUżytkownik
 
 router = APIRouter(
     prefix="/konto",
@@ -48,7 +48,7 @@ router = APIRouter(
 )
 async def synchronizuj(
     dane: Konto,
-    użytkownik: AktualnyUżytkownik = Depends(pobierzAktualnegoUżytkownika),
+    użytkownik: AtomowyAktualnyUżytkownik = Depends(pobierzAktualnegoUżytkownika),
     _: None = Depends(ograniczŻądania("konto:synchronizacja", maksimum=20, czasPrzedziału=60)),
 ) -> Konto:
     identyfikatorApple = await pobierzIdentyfikatorApple(użytkownik.identyfikator)
@@ -79,7 +79,7 @@ async def synchronizuj(
     description="Usuwa konto Supabase oraz lokalne dane użytkownika, pozostawiając wymagany do prawidłowego działania aplikacji profil Apple."
 )
 async def usuń(
-    użytkownik: AktualnyUżytkownik = Depends(pobierzAktualnegoUżytkownika),
+    użytkownik: AtomowyAktualnyUżytkownik = Depends(pobierzAktualnegoUżytkownika),
     _: None = Depends(ograniczŻądania("konto:usuwanie", maksimum=3, czasPrzedziału=3600)),
 ) -> Response:
     await usuńKontoUżytkownika(użytkownik.identyfikator)

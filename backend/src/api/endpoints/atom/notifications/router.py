@@ -21,7 +21,7 @@ from src.api.endpoints.atom.notifications.schemas import TokenPowiadomien
 from src.handlers.accounts.auth import pobierzAktualnegoUżytkownika
 from src.handlers.accounts.limits import ograniczŻądania
 from src.handlers.notifications import database
-from src.types.accounts import AktualnyUżytkownik
+from src.models.accounts import AktualnyUżytkownik as AtomowyAktualnyUżytkownik
 
 router = APIRouter(
     prefix="/powiadomienia",
@@ -43,7 +43,7 @@ router = APIRouter(
 )
 async def zarejestruj(
     dane: TokenPowiadomien,
-    użytkownik: AktualnyUżytkownik = Depends(pobierzAktualnegoUżytkownika),
+    użytkownik: AtomowyAktualnyUżytkownik = Depends(pobierzAktualnegoUżytkownika),
     _: None = Depends(ograniczŻądania("powiadomienia:rejestracja", maksimum=10, czasPrzedziału=60)),
 ) -> Response:
     await database.zapiszUrządzenie(użytkownik.identyfikator, dane.tokenUrzadzenia)
@@ -65,7 +65,7 @@ async def zarejestruj(
 )
 async def wyrejestruj(
     dane: TokenPowiadomien,
-    użytkownik: AktualnyUżytkownik = Depends(pobierzAktualnegoUżytkownika),
+    użytkownik: AtomowyAktualnyUżytkownik = Depends(pobierzAktualnegoUżytkownika),
     _: None = Depends(ograniczŻądania("powiadomienia:usuwanie", maksimum=10, czasPrzedziału=60)),
 ) -> Response:
     await database.usuńUrządzenieUżytkownika(użytkownik.identyfikator, dane.tokenUrzadzenia)

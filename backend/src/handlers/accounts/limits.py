@@ -27,7 +27,7 @@ from redis.exceptions import RedisError
 # Wewnętrzne importy
 from src.classes.atom import atom
 from src.handlers.accounts.auth import pobierzAktualnegoUżytkownika
-from src.types.accounts import AktualnyUżytkownik
+from src.models.accounts import AktualnyUżytkownik
 
 licznikiLimitów: dict[str, tuple[float, int]] = {}
 blokadaPamięci = asyncio.Lock()

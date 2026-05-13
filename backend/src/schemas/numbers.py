@@ -11,22 +11,11 @@
 # Zewnętrzne biblioteki
 from pydantic import BaseModel
 
-class ElementListy(BaseModel):
+class SzczęśliweNumerki(BaseModel):
     """
-    Słownik elementu listy planu lekcji.
-    """
-
-    url: str
-    identyfikator: str
-    nazwa: str
-    rozwiniecie: str
-
-
-class Listy(BaseModel):
-    """
-    Słownik list oddziałów, nauczycieli i sal.
+    Schemat szczęśliwych numerków.
     """
 
-    oddzialy: list[ElementListy] | None
-    nauczyciele: list[ElementListy] | None
-    sale: list[ElementListy] | None
+    data: str
+    numerki: tuple[int, int] | None
+    informacja: str | None

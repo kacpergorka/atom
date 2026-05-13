@@ -17,11 +17,11 @@ import httpx
 import jwt
 
 # Wewnętrzne importy
-from src.types.notifications import (
+from src.handlers.logging import logowanie
+from src.models.notifications import (
     KonfiguracjaAPNs,
     WynikAPNs
 )
-from src.handlers.logging import logowanie
 
 class APNs:
     """

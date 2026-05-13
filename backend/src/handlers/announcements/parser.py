@@ -19,12 +19,12 @@ from bs4 import (
 )
 
 # Wewnętrzne importy
-from src.types.announcements import (
+from src.handlers.helpers import wyczyśćTekst
+from src.handlers.logging import logowanie
+from src.schemas.announcements import (
     Ogłoszenia,
     Ogłoszenie
 )
-from src.handlers.helpers import wyczyśćTekst
-from src.handlers.logging import logowanie
 
 def wyodrębnijOgłoszenia(
     zawartośćStrony: BeautifulSoup,

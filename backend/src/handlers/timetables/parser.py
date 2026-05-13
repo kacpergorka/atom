@@ -24,12 +24,6 @@ from bs4 import (
 )
 
 # Wewnętrzne importy
-from src.types.lists import ElementListy
-from src.types.timetables import (
-    ElementPlanu,
-    Lekcja,
-    PlanLekcji
-)
 from src.handlers.configuration import konfiguracja
 from src.handlers.helpers import (
     pobierzGrupyKonfiguracji,
@@ -41,6 +35,12 @@ from src.handlers.timetables.helpers import (
     zwróćPustySłownik
 )
 from src.handlers.timetables.resolver import uzupełnijNauczyciela
+from src.schemas.lists import ElementListy
+from src.schemas.timetables import (
+    ElementPlanu,
+    Lekcja,
+    PlanLekcji
+)
 
 async def wyodrębnijPlanLekcji(
     atom: aiohttp.ClientSession,
