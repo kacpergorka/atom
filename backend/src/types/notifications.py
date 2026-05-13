@@ -14,7 +14,7 @@ import os
 from pathlib import Path
 
 środowiskaProdukcyjne = {"production", "release"}
-katalogKluczy = Path(__file__).resolve().parents[3] / "keys"
+katalogKluczy = Path(__file__).resolve().parents[2] / "keys"
 
 @dataclass(frozen=True)
 class KonfiguracjaAPNs:

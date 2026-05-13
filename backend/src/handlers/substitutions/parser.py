@@ -74,7 +74,7 @@ async def wyodrębnijZastępstwa(
         """
         return {
             "identyfikator": None,
-            "dzien": None,
+            "dni": [],
             "informacje": "",
             "skrocone": None,
             "zastepstwa": []
@@ -152,21 +152,36 @@ async def wyodrębnijZastępstwa(
 
         return ""
 
-    def wyodrębnijDzień(tekst: str | None) -> str | None:
+    def dodajUnikalnyElement(
+        lista: list[str],
+        wartość: str | None
+    ) -> None:
         """
-        Wyodrębnia nazwę dnia tygodnia na podstawie informacji dodatkowych zastępstw.
+        Dodaje element do listy, jeżeli nie jest pusty i nie został wcześniej dodany.
+
+        Args:
+            lista (list[str]): Lista docelowa.
+            wartość (str | None): Wartość do dodania.
+        """
+
+        if wartość is not None and wartość not in lista:
+            lista.append(wartość)
+
+    def wyodrębnijDni(tekst: str | None) -> list[str]:
+        """
+        Wyodrębnia nazwy dni tygodnia z tekstu zastępstw.
 
         Args:
             tekst (str | None): Tekst zawierający informacje dodatkowe zastępstw.
 
         Returns:
-            str | None: Nazwa dnia tygodnia, jeżeli udało się ją ustalić.
+            list[str]: Nazwy dni tygodnia w kolejności wystąpienia.
         """
 
         if not tekst:
-            return None
+            return []
 
-        linia = tekst.splitlines()[0].lower() if tekst.splitlines() else ""
+        listaDniTygodnia: list[str] = []
         dniTygodnia = {
             "poniedziałek": "Poniedziałek",
             "poniedzialek": "Poniedziałek",
@@ -179,31 +194,45 @@ async def wyodrębnijZastępstwa(
             "sobota": "Sobota",
             "niedziela": "Niedziela"
         }
+        mapaDniTygodnia = {
+            0: "Poniedziałek",
+            1: "Wtorek",
+            2: "Środa",
+            3: "Czwartek",
+            4: "Piątek",
+            5: "Sobota",
+            6: "Niedziela"
+        }
 
-        for klucz, nazwa in dniTygodnia.items():
-            if klucz in linia:
-                return nazwa
+        tekst = tekst.lower().replace("\xa0", " ")
+        wzórDni = "|".join(re.escape(dzień) for dzień in dniTygodnia)
 
-        linia = tekst.lower().replace("\xa0", " ")
-        dopasowanie = re.search(r"\b(\d{1,2}\.\d{1,2}\.\d{4})\b", linia)
-
-        if dopasowanie:
+        for dopasowanie in re.finditer(r"\b(\d{1,2}\.\d{1,2}\.\d{4})\b", tekst):
             try:
                 data = datetime.strptime(dopasowanie.group(1), "%d.%m.%Y")
-                mapaDniTygodnia = {
-                    0: "Poniedziałek",
-                    1: "Wtorek",
-                    2: "Środa",
-                    3: "Czwartek",
-                    4: "Piątek",
-                    5: "Sobota",
-                    6: "Niedziela"
-                }
-                return mapaDniTygodnia.get(data.weekday())
             except ValueError:
-                return None
+                continue
 
-        return None
+            dodajUnikalnyElement(listaDniTygodnia, mapaDniTygodnia.get(data.weekday()))
+
+        for dopasowanie in re.finditer(rf"\b({wzórDni})\b", tekst):
+            dodajUnikalnyElement(listaDniTygodnia, dniTygodnia[dopasowanie.group(1)])
+
+        return listaDniTygodnia
+
+    def wyodrębnijDzień(tekst: str | None) -> str | None:
+        """
+        Wyodrębnia pierwszą nazwę dnia tygodnia z tekstu zastępstw.
+
+        Args:
+            tekst (str | None): Tekst zawierający informacje dodatkowe zastępstw.
+
+        Returns:
+            str | None: Nazwa dnia tygodnia, jeżeli udało się ją ustalić.
+        """
+
+        dni = wyodrębnijDni(tekst)
+        return dni[0] if dni else None
 
     def sprawdźSkrócone(tekst: str) -> bool:
         """
@@ -369,6 +398,7 @@ async def wyodrębnijZastępstwa(
         identyfikator: str | None = None
         wiersze = zawartośćStrony.find_all("tr")
         wpisyZastępstw: list[Zastępstwo] = []
+        dni: list[str] = []
 
         mapaOddziałów: dict[str, ElementListy] = {
             element["nazwa"]: element
@@ -391,7 +421,10 @@ async def wyodrębnijZastępstwa(
             identyfikator = dane.get("identyfikator") if dane else None
 
         informacjeDodatkowe = wyodrębnijInformacje(wiersze, "st0")
-        dzień = wyodrębnijDzień(informacjeDodatkowe) if informacjeDodatkowe else None
+        for dzieńInformacji in wyodrębnijDni(informacjeDodatkowe):
+            dodajUnikalnyElement(dni, dzieńInformacji)
+
+        domyślnyDzień = dni[0] if dni else None
         skrócone = sprawdźSkrócone(informacjeDodatkowe)
 
         indeksST0: int | None = None
@@ -402,13 +435,18 @@ async def wyodrębnijZastępstwa(
                 indeksST0 = indeksWiersza
 
         aktualnyNauczyciel: str | None = None
+        aktualnyDzień: str | None = domyślnyDzień
+
         for indeks, wiersz in enumerate(wiersze):
             if indeksST0 is not None and indeks <= indeksST0:
                 continue
 
             komórki = wiersz.find_all("td")
             if len(komórki) == 1:
-                aktualnyNauczyciel = wyczyśćTekst(komórki[0])
+                nagłówek = wyczyśćTekst(komórki[0])
+                aktualnyDzień = wyodrębnijDzień(nagłówek) or domyślnyDzień
+                dodajUnikalnyElement(dni, aktualnyDzień)
+                aktualnyNauczyciel = nagłówek.split("/", 1)[0].strip() or nagłówek
                 continue
 
             if len(komórki) >= 4:
@@ -451,8 +489,11 @@ async def wyodrębnijZastępstwa(
                     or (wybranyOddział and (dopasowaneDoOddziału or not zidentyfikowane))
                     or (wybranyNauczyciel and dopasowaneDoNauczyciela)
                 ):
+                    dzieńWpisu = aktualnyDzień or domyślnyDzień
+                    dodajUnikalnyElement(dni, dzieńWpisu)
                     wpisyZastępstw.append({
                         "zidentyfikowane": zidentyfikowane,
+                        "dzien": dzieńWpisu,
                         "grupa": None,
                         "nauczyciel": aktualnyNauczyciel or ", ".join(wyodrębnieniNauczyciele) or "Nieznany",
                         "lekcja": int(lekcja) if sprawdźPrzydatne(lekcja, "Lekcja") else None,
@@ -463,17 +504,46 @@ async def wyodrębnijZastępstwa(
 
         if not informacjeDodatkowe and not sprawdźIstnienieZastępstw(wiersze):
             informacjeDodatkowe = wyodrębnijInformacje(wiersze, "st1")
-            dzień = wyodrębnijDzień(informacjeDodatkowe) if informacjeDodatkowe else None
+            for dzieńInformacji in wyodrębnijDni(informacjeDodatkowe):
+                dodajUnikalnyElement(dni, dzieńInformacji)
+
             skrócone = sprawdźSkrócone(informacjeDodatkowe)
 
-        if wybranyOddział and wpisyZastępstw and identyfikator and dzień:
-            wpisyZastępstw = await uzupełnijZastępstwa(atom, wpisyZastępstw, identyfikator, dzień, listaOddziałów, grupy, przedmiotyDodatkowe)
+        if wybranyOddział and wpisyZastępstw and identyfikator:
+            uzupełnioneWpisy: list[Zastępstwo] = []
+            for dzień in dni:
+                wpisyDnia = [
+                    wpis
+                    for wpis in wpisyZastępstw
+                    if wpis.get("dzien") == dzień
+                ]
 
-        wpisyZastępstw.sort(key=posortujNauczycieli)
+                if wpisyDnia:
+                    uzupełnioneWpisy.extend(
+                        await uzupełnijZastępstwa(atom, wpisyDnia, identyfikator, dzień, listaOddziałów, grupy, przedmiotyDodatkowe)
+                    )
+
+            uzupełnioneWpisy.extend(
+                wpis
+                for wpis in wpisyZastępstw
+                if wpis.get("dzien") not in dni
+            )
+            wpisyZastępstw = uzupełnioneWpisy
+
+        indeksyDni = {
+            dzień: indeks
+            for indeks, dzień in enumerate(dni)
+        }
+        wpisyZastępstw.sort(
+            key=lambda wpis: (
+                indeksyDni.get(wpis.get("dzien"), len(indeksyDni)),
+                posortujNauczycieli(wpis),
+            )
+        )
 
         return {
             "identyfikator": identyfikator,
-            "dzien": dzień,
+            "dni": dni,
             "informacje": informacjeDodatkowe,
             "skrocone": skrócone,
             "zastepstwa": wpisyZastępstw

@@ -13,6 +13,7 @@ from pydantic import BaseModel
 
 class UniwersalneZastepstwo(BaseModel):
     zidentyfikowane: bool
+    dzien: str | None
     grupa: str | None
     nauczyciel: str
     lekcja: int | None
@@ -23,7 +24,7 @@ class UniwersalneZastepstwo(BaseModel):
 
 class UniwersalneZastepstwa(BaseModel):
     identyfikator: str | None
-    dzien: str | None
+    dni: list[str]
     informacje: str
     skrocone: bool | None
     zastepstwa: list[UniwersalneZastepstwo] | None

@@ -118,12 +118,19 @@ def zbudujPlanLekcji(
         if not isinstance(planTygodniowy, dict) or not planTygodniowy:
             return planLekcji
 
-        dzień = zastępstwa.get("dzien")
-        if dzień is None:
-            return planLekcji
+        dni = [
+            dzień
+            for dzień in zastępstwa.get("dni", [])
+            if isinstance(dzień, str)
+        ]
+        wpisyZastępstw = zastępstwa.get("zastepstwa", [])
 
-        wpisyDnia = planTygodniowy.get(dzień)
-        if not isinstance(wpisyDnia, list) or not wpisyDnia:
+        for wpis in wpisyZastępstw or []:
+            dzień = wpis.get("dzien")
+            if isinstance(dzień, str) and dzień not in dni:
+                dni.append(dzień)
+
+        if not dni:
             return planLekcji
 
         if zastępstwa.get("skrocone"):
@@ -141,58 +148,70 @@ def zbudujPlanLekcji(
                 początek, koniec = [wartość.strip() for wartość in zakres.split("-", 1)]
                 schematSkróconych[numerLekcji] = (początek, koniec)
 
-            for wpis in wpisyDnia:
-                numerLekcji = wpis.get("numer")
-
-                if not isinstance(numerLekcji, int):
+            for dzień in dni:
+                wpisyDnia = planTygodniowy.get(dzień)
+                if not isinstance(wpisyDnia, list):
                     continue
 
-                if (zakres := schematSkróconych.get(numerLekcji)):
-                    wpis["poczatek"], wpis["koniec"] = zakres
+                for wpis in wpisyDnia:
+                    numerLekcji = wpis.get("numer")
 
-        wpisyZastępstw = zastępstwa.get("zastepstwa", [])
+                    if not isinstance(numerLekcji, int):
+                        continue
+
+                    if (zakres := schematSkróconych.get(numerLekcji)):
+                        wpis["poczatek"], wpis["koniec"] = zakres
+
         if not wpisyZastępstw:
             usuńPusteWpisy(planTygodniowy)
             return planLekcji
 
-        wpisyPoNumerzeLekcji: defaultdict[int, list[dict]] = defaultdict(list)
-        for wpis in wpisyZastępstw:
-            numerLekcji = wpis.get("lekcja")
-
-            if not isinstance(numerLekcji, int):
+        for dzień in dni:
+            wpisyDnia = planTygodniowy.get(dzień)
+            if not isinstance(wpisyDnia, list) or not wpisyDnia:
                 continue
 
-            wpisyPoNumerzeLekcji[numerLekcji].append(wpis)
+            wpisyPoNumerzeLekcji: defaultdict[int, list[dict]] = defaultdict(list)
+            for wpis in wpisyZastępstw:
+                if wpis.get("dzien") != dzień:
+                    continue
 
-        wpisyPlanuPoNumerze: dict[int, dict] = {}
-        for wpisPlanu in wpisyDnia:
-            numerLekcji = wpisPlanu.get("numer")
+                numerLekcji = wpis.get("lekcja")
 
-            if isinstance(numerLekcji, int):
-                wpisyPlanuPoNumerze[numerLekcji] = wpisPlanu
+                if not isinstance(numerLekcji, int):
+                    continue
 
-        for numerLekcji, wpisyGodziny in wpisyPoNumerzeLekcji.items():
-            wpisPlanu = wpisyPlanuPoNumerze.get(numerLekcji)
+                wpisyPoNumerzeLekcji[numerLekcji].append(wpis)
 
-            if wpisPlanu is None:
-                continue
+            wpisyPlanuPoNumerze: dict[int, dict] = {}
+            for wpisPlanu in wpisyDnia:
+                numerLekcji = wpisPlanu.get("numer")
 
-            lekcje = wpisPlanu.get("lekcje")
-            if not isinstance(lekcje, list) or not lekcje:
-                wpisPlanu["lekcje"] = [
-                    {
-                        "przedmiot": "Brak lekcji",
-                        "grupa": None,
-                        "nauczyciel": None,
-                        "sala": None,
-                        "oddzialy": None,
-                        "zastepstwo": zbudujDaneZastępstwa(wpis)
-                    }
-                    for wpis in wpisyGodziny
-                ]
-                continue
+                if isinstance(numerLekcji, int):
+                    wpisyPlanuPoNumerze[numerLekcji] = wpisPlanu
 
-            przypiszWpisyDoLekcji(lekcje, wpisyGodziny)
+            for numerLekcji, wpisyGodziny in wpisyPoNumerzeLekcji.items():
+                wpisPlanu = wpisyPlanuPoNumerze.get(numerLekcji)
+
+                if wpisPlanu is None:
+                    continue
+
+                lekcje = wpisPlanu.get("lekcje")
+                if not isinstance(lekcje, list) or not lekcje:
+                    wpisPlanu["lekcje"] = [
+                        {
+                            "przedmiot": "Brak lekcji",
+                            "grupa": None,
+                            "nauczyciel": None,
+                            "sala": None,
+                            "oddzialy": None,
+                            "zastepstwo": zbudujDaneZastępstwa(wpis)
+                        }
+                        for wpis in wpisyGodziny
+                    ]
+                    continue
+
+                przypiszWpisyDoLekcji(lekcje, wpisyGodziny)
 
         usuńPusteWpisy(planTygodniowy)
         return planLekcji

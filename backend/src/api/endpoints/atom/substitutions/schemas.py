@@ -12,6 +12,7 @@
 from pydantic import BaseModel
 
 class AtomoweZastepstwo(BaseModel):
+    dzien: str | None
     nauczyciel: str
     lekcja: int | None
     treść: str | None
@@ -19,6 +20,6 @@ class AtomoweZastepstwo(BaseModel):
 
 
 class AtomoweZastepstwa(BaseModel):
-    dzien: str | None
+    dni: list[str]
     informacje: list[str]
     zastepstwa: list[AtomoweZastepstwo] | None

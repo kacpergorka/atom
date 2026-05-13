@@ -64,6 +64,7 @@ def mapujZastępstwa(dane: SuroweZastępstwa) -> AtomoweZastepstwa:
         """
 
         return AtomoweZastepstwo(
+            dzien=dane.get("dzien"),
             nauczyciel=dane["nauczyciel"],
             lekcja=dane.get("lekcja"),
             treść=dane.get("opis"),
@@ -76,7 +77,7 @@ def mapujZastępstwa(dane: SuroweZastępstwa) -> AtomoweZastepstwa:
     ]
 
     return AtomoweZastepstwa(
-        dzien=dane.get("dzien"),
+        dni=dane.get("dni", []),
         informacje=informacjeDodatkowe,
         zastepstwa=(
             [
