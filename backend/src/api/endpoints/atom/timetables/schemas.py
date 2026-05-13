@@ -15,6 +15,10 @@ from typing import Literal
 from pydantic import BaseModel
 
 class AtomowaLekcja(BaseModel):
+    """
+    Model lekcji zwracanej przez API aplikacji Atom.
+    """
+
     id: str
     dzien: Literal["Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek"]
     numer: int
@@ -28,6 +32,10 @@ class AtomowaLekcja(BaseModel):
 
 
 class AtomowyPlanLekcji(BaseModel):
+    """
+    Model planu lekcji zwracanego przez API aplikacji Atom.
+    """
+
     wygenerowano: str | None
     obowiazuje: str | None
     wygasa: str | None

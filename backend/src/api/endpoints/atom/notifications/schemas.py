@@ -14,18 +14,19 @@ import re
 # Zewnętrzne biblioteki
 from pydantic import (
     BaseModel,
-    ConfigDict,
-    Field,
     field_validator
 )
 
 class TokenPowiadomien(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-    tokenUrządzenia: str = Field(alias="tokenUrzadzenia")
+    """
+    Model tokenu urządzenia używanego przez powiadomienia APNs aplikacji Atom.
+    """
 
-    @field_validator("tokenUrządzenia")
+    tokenUrzadzenia: str
+
+    @field_validator("tokenUrzadzenia")
     @classmethod
-    def walidujTokenUrządzenia(cls, wartość: str) -> str:
+    def walidujTokenUrzadzenia(cls, wartość: str) -> str:
         """
         Normalizuje i waliduje token urządzenia APNs.
 

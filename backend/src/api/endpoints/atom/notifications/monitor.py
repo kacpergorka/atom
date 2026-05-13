@@ -78,7 +78,7 @@ async def monitorujZastępstwa(preferencje: list[PreferencjePowiadomień]) -> No
     Wykrywa zmianę zastępstw oraz informacji dodatkowych i wysyła powiadomienia do dopasowanych użytkowników.
 
     Args:
-        preferencje: Lista preferencji powiadomień użytkowników.
+        preferencje (list[PreferencjePowiadomień]): Lista preferencji powiadomień użytkowników.
     """
 
     preferencjeWedługZastępstw = {}
@@ -151,7 +151,7 @@ async def uruchomMonitorPowiadomień() -> None:
             raise
         except Exception as e:
             logowanie.exception(
-                f"Wystąpił bład podczas monitorowania zmian dla powiadomień. Więcej informacji: {e}"
+                f"Wystąpił błąd podczas monitorowania zmian dla powiadomień. Więcej informacji: {e}"
             )
 
         await asyncio.sleep(300)

@@ -52,7 +52,7 @@ def mapujListy(dane: SuroweListy) -> AtomoweListy:
     def mapujElementyListy(
         elementy: list[SurowyElementListy] | None,
         rozwinięcieNazwy: bool = False
-    ) -> list[AtomowyElementListy] | None:
+    ) -> list[AtomowyElementListy]:
         """
         Mapuje listę surowych elementów do modelu API Atomu.
 
@@ -61,7 +61,7 @@ def mapujListy(dane: SuroweListy) -> AtomoweListy:
             rozwinięcieNazwy (bool): Określa, czy pole `nazwa` ma zostać zmapowane z pola `rozwiniecie`.
 
         Returns:
-            list[AtomowyElementListy] | None: Lista przetworzonych elementów albo `None`.
+            list[AtomowyElementListy]: Lista przetworzonych elementów.
         """
 
         return [

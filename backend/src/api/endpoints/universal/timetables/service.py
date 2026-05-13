@@ -105,7 +105,7 @@ async def pobierzPlanLekcji(
             return cachePlanu.model_copy(update={"wolne": await pobierzStatusDniaWolnego()})
 
         przedmiotyDodatkowe = zbudujPrzedmiotyDodatkowe(religia, edukacjaZdrowotna)
-        listy = (await pobierzListy(None, None, None)).model_dump()
+        listy = (await pobierzListy(True, True, True)).model_dump()
         listaOddziałów = listy.get("oddzialy") or []
         listaNauczycieli = listy.get("nauczyciele") or []
         listaSal = listy.get("sale") or []

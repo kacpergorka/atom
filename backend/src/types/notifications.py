@@ -18,6 +18,10 @@ katalogKluczy = Path(__file__).resolve().parents[2] / "keys"
 
 @dataclass(frozen=True)
 class KonfiguracjaAPNs:
+    """
+    Model konfiguracji połączenia z APNs.
+    """
+
     identyfikatorKlucza: str
     identyfikatorZespołu: str
     temat: str
@@ -80,6 +84,10 @@ class KonfiguracjaAPNs:
 
 @dataclass(frozen=True)
 class PreferencjePowiadomień:
+    """
+    Model preferencji powiadomień użytkownika.
+    """
+
     identyfikatorUżytkownika: str
     oddział: str | None
     identyfikatorOddziału: str | None
@@ -114,6 +122,10 @@ class PreferencjePowiadomień:
 
 @dataclass(frozen=True)
 class WynikAPNs:
+    """
+    Model wyniku wysyłki powiadomienia APNs.
+    """
+
     sukces: bool
     kodStanu: int
     powód: str | None

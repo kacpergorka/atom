@@ -16,10 +16,14 @@ from src.handlers.database import połączBazęDanych
 
 async def zainicjalizujBazęKont() -> None:
     """
-    Tworzy strukturę lokalnej bazy kont.
+    Tworzy strukturę lokalnej bazy danych kont.
     """
 
     def _zainicjalizujBazęKont() -> None:
+        """
+        Tworzy strukturę lokalnej bazy danych kont w wątku roboczym.
+        """
+
         with połączBazęDanych() as połączenie:
             połączenie.execute(
                 """
@@ -53,6 +57,10 @@ async def zapiszProfilApple(
         identyfikatorApple: str,
         nazwa: str
     ) -> None:
+        """
+        Zapisuje wymagany do prawidłowego działania aplikacji profil Apple w wątku roboczym.
+        """
+
         with połączBazęDanych() as połączenie:
             połączenie.execute(
                 """
@@ -70,7 +78,7 @@ async def zapiszProfilApple(
 
 async def pobierzNazwęProfiluApple(identyfikatorApple: str) -> str | None:
     """
-    Pobiera nazwę zapisaną dla Apple ID.
+    Pobiera nazwę profilu Apple.
 
     Args:
         identyfikatorApple (str): Stabilny identyfikator Apple.
@@ -80,6 +88,10 @@ async def pobierzNazwęProfiluApple(identyfikatorApple: str) -> str | None:
     """
 
     def _pobierzNazwęProfiluApple(identyfikatorApple: str) -> str | None:
+        """
+        Pobiera nazwę profilu Apple w wątku roboczym.
+        """
+
         with połączBazęDanych() as połączenie:
             wiersz = połączenie.execute(
                 "SELECT nazwa FROM uzytkownicy_apple WHERE identyfikator_apple = ?",
@@ -100,6 +112,10 @@ async def odłączUżytkownikaOdProfiluApple(identyfikatorUżytkownika: str) -> 
     """
 
     def _odłączUżytkownikaOdProfiluApple(identyfikatorUżytkownika: str) -> None:
+        """
+        Odłącza lokalnego użytkownika od zachowanego profilu Apple w wątku roboczym.
+        """
+
         with połączBazęDanych() as połączenie:
             połączenie.execute(
                 """

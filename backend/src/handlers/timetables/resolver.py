@@ -30,7 +30,7 @@ from src.handlers.logging import logowanie
 
 async def uzupełnijNauczyciela(
     atom: aiohttp.ClientSession,
-    url: str,
+    url: str | None,
     dniTygodnia: list[str],
     dzień: str,
     numer: int
@@ -40,7 +40,7 @@ async def uzupełnijNauczyciela(
 
     Args:
         atom (aiohttp.ClientSession): Aktywna sesja HTTP używana do wykonania zapytania.
-        url (str): Adres strony planu lekcji sali.
+        url (str | None): Adres strony planu lekcji sali.
         dniTygodnia (list[str]): Lista dni tygodnia.
         dzień (str): Dzień tygodnia, w którym odbywa się lekcja.
         numer (int): Numer lekcji z brakującym nauczycielem w danym dniu tygodnia.
@@ -54,7 +54,7 @@ async def uzupełnijNauczyciela(
         katalog = katalogPlanów.get("url")
         kodowanie = katalogPlanów.get("kodowanie")
 
-        if not katalog or not kodowanie:
+        if not katalog or not kodowanie or not url:
             logowanie.warning(
                 "Funkcja nie otrzymała wystarczającej liczby potrzebnych danych. Zwracanie pustego słownika elementu."
             )

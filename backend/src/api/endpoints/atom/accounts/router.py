@@ -23,11 +23,9 @@ from src.api.endpoints.atom.accounts.service import (
     usuńKontoUżytkownika
 )
 from src.handlers.accounts import database
-from src.handlers.accounts.auth import (
-    AktualnyUżytkownik,
-    pobierzAktualnegoUżytkownika
-)
+from src.handlers.accounts.auth import pobierzAktualnegoUżytkownika
 from src.handlers.accounts.limits import ograniczŻądania
+from src.types.accounts import AktualnyUżytkownik
 
 router = APIRouter(
     prefix="/konto",
@@ -54,11 +52,16 @@ async def synchronizuj(
     _: None = Depends(ograniczŻądania("konto:synchronizacja", maksimum=20, czasPrzedziału=60)),
 ) -> Konto:
     identyfikatorApple = await pobierzIdentyfikatorApple(użytkownik.identyfikator)
+
     if dane.nazwa is not None:
         await database.zapiszProfilApple(użytkownik.identyfikator, identyfikatorApple, dane.nazwa)
         return Konto(nazwa=dane.nazwa)
 
-    return Konto(nazwa=await database.pobierzNazwęProfiluApple(identyfikatorApple))
+    istniejącaNazwa = await database.pobierzNazwęProfiluApple(identyfikatorApple)
+    if istniejącaNazwa is not None:
+        await database.zapiszProfilApple(użytkownik.identyfikator, identyfikatorApple, istniejącaNazwa)
+
+    return Konto(nazwa=istniejącaNazwa)
 
 
 @router.delete(

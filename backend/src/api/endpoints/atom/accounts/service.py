@@ -202,6 +202,16 @@ def znajdźNazwęApple(daneUżytkownika: dict) -> str | None:
     """
 
     def odczytajNazwę(dane: object) -> str | None:
+        """
+        Odczytuje nazwę użytkownika z fragmentu danych Supabase.
+
+        Args:
+            dane (object): Fragment danych użytkownika.
+
+        Returns:
+            str | None: Nazwa użytkownika albo None.
+        """
+
         if not isinstance(dane, dict):
             return None
 
@@ -264,7 +274,7 @@ async def zachowajProfilApple(identyfikatorUżytkownika: str) -> None:
         logowanie.exception(
             f"Wystąpił błąd podczas zachowywania profilu Apple przed usunięciem konta. Więcej informacji: {e.detail}"
         )
-        return
+        raise
 
     identyfikatorApple = znajdźIdentyfikatorApple(daneUżytkownika)
     nazwa = znajdźNazwęApple(daneUżytkownika)

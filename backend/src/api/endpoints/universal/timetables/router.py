@@ -24,16 +24,16 @@ router = APIRouter(
 )
 
 @router.get(
-        "",
-        response_model=UniwersalnyPlanLekcji,
-        responses={
-            400: {"description": "Otrzymano nieprawidłowy identyfikator."},
-            500: {"description": "Wystąpił nieoczekiwany błąd po stronie serwera."},
-            502: {"description": "Wystąpił błąd podczas przetwarzania danych."},
-            503: {"description": "Przekroczono czas oczekiwania na połączenie."}
-        },
-        summary="Pobiera dane planu lekcji.",
-        description="Pobiera plan lekcji ze strony internetowej, której to URL wprowadzony jest w pliku konfiguracyjnym API."
+    "",
+    response_model=UniwersalnyPlanLekcji,
+    responses={
+        400: {"description": "Otrzymano nieprawidłowy identyfikator."},
+        500: {"description": "Wystąpił nieoczekiwany błąd po stronie serwera."},
+        502: {"description": "Wystąpił błąd podczas przetwarzania danych."},
+        503: {"description": "Przekroczono czas oczekiwania na połączenie."}
+    },
+    summary="Pobiera dane planu lekcji.",
+    description="Pobiera plan lekcji ze strony internetowej, której to URL wprowadzony jest w pliku konfiguracyjnym API."
 )
 async def planlekcji(
     identyfikator: str = Query(..., description="Identyfikator oddziału, nauczyciela lub sali, np. o17, n78, s45."),

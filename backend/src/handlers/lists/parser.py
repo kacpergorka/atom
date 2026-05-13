@@ -49,7 +49,7 @@ async def wyodrębnijListy(
         Zwraca pustą strukturę list w standardowym formacie.
 
         Returns:
-            Zastępstwa: Pusta struktura list.
+            Listy: Pusta struktura list.
         """
         return {
             "oddzialy": [],

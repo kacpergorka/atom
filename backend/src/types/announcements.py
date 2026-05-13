@@ -8,10 +8,14 @@
 #  ▀▀    ▀▀     ▀▀       ▀▀▀▀    ▀▀    ▀▀            ▀▀    ▀▀  ▀▀         ▀▀▀▀▀▀
 #
 
-# Standardowe biblioteki
-from typing import TypedDict
+# Zewnętrzne biblioteki
+from pydantic import BaseModel
 
-class Ogłoszenie(TypedDict):
+class Ogłoszenie(BaseModel):
+    """
+    Słownik ogłoszenia odczytanego ze strony szkoły.
+    """
+
     identyfikator: str
     tytul: str
     stopka: str | None
@@ -19,7 +23,11 @@ class Ogłoszenie(TypedDict):
     obraz: str | None
 
 
-class Ogłoszenia(TypedDict):
+class Ogłoszenia(BaseModel):
+    """
+    Słownik listy ogłoszeń odczytanej ze strony szkoły.
+    """
+
     aktualnaStrona: int
     ostatniaStrona: int
     poprzedniaStrona: str | None

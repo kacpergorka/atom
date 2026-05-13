@@ -579,8 +579,18 @@ async def wyodrębnijPlanLekcji(
             if len(komórki) < 7:
                 continue
 
-            numer = int(komórki[0].get_text(strip=True))
-            początek, koniec = sformatujGodziny(komórki[1].get_text(strip=True))
+            tekstNumeru = komórki[0].get_text(strip=True)
+            if not tekstNumeru.isdigit():
+                continue
+
+            try:
+                numer = int(tekstNumeru)
+                początek, koniec = sformatujGodziny(komórki[1].get_text(strip=True))
+            except ValueError as e:
+                logowanie.warning(
+                    f"Pominięto wiersz planu lekcji z nieprawidłowym numerem lub zakresem godzin. Więcej informacji: {e}"
+                )
+                continue
 
             for indeks, dzień in enumerate(dniTygodnia):
                 td = komórki[indeks + 2]
@@ -613,7 +623,7 @@ async def wyodrębnijPlanLekcji(
                 f"Wystąpiła niezgodność w liczbie wyników uzupełniania nauczycieli (oczekiwano: {len(listaPotrzebnychNauczycieli)}, lecz otrzymano: {len(wyniki)})."
             )
 
-        słownikNauczycieli: dict[tuple[str, str, int], ElementPlanu] = {}
+        słownikNauczycieli: dict[tuple[str | None, str, int], ElementPlanu] = {}
 
         for indeks, klucz in enumerate(listaPotrzebnychNauczycieli):
             if indeks >= len(wyniki):

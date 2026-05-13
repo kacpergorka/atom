@@ -8,10 +8,14 @@
 #  ▀▀    ▀▀     ▀▀       ▀▀▀▀    ▀▀    ▀▀            ▀▀    ▀▀  ▀▀         ▀▀▀▀▀▀
 #
 
-# Standardowe biblioteki
-from typing import TypedDict
+# Zewnętrzne biblioteki
+from pydantic import BaseModel
 
-class SzczęśliweNumerki(TypedDict):
+class SzczęśliweNumerki(BaseModel):
+    """
+    Słownik szczęśliwych numerków.
+    """
+
     data: str
     numerki: tuple[int, int] | None
     informacja: str | None

@@ -18,12 +18,10 @@ from fastapi import (
 
 # Wewnętrzne importy
 from src.api.endpoints.atom.notifications.schemas import TokenPowiadomien
-from src.handlers.accounts.auth import (
-    AktualnyUżytkownik,
-    pobierzAktualnegoUżytkownika
-)
+from src.handlers.accounts.auth import pobierzAktualnegoUżytkownika
 from src.handlers.accounts.limits import ograniczŻądania
 from src.handlers.notifications import database
+from src.types.accounts import AktualnyUżytkownik
 
 router = APIRouter(
     prefix="/powiadomienia",
@@ -48,7 +46,7 @@ async def zarejestruj(
     użytkownik: AktualnyUżytkownik = Depends(pobierzAktualnegoUżytkownika),
     _: None = Depends(ograniczŻądania("powiadomienia:rejestracja", maksimum=10, czasPrzedziału=60)),
 ) -> Response:
-    await database.zapiszUrządzenie(użytkownik.identyfikator, dane.tokenUrządzenia)
+    await database.zapiszUrządzenie(użytkownik.identyfikator, dane.tokenUrzadzenia)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
@@ -70,5 +68,5 @@ async def wyrejestruj(
     użytkownik: AktualnyUżytkownik = Depends(pobierzAktualnegoUżytkownika),
     _: None = Depends(ograniczŻądania("powiadomienia:usuwanie", maksimum=10, czasPrzedziału=60)),
 ) -> Response:
-    await database.usuńUrządzenieUżytkownika(użytkownik.identyfikator, dane.tokenUrządzenia)
+    await database.usuńUrządzenieUżytkownika(użytkownik.identyfikator, dane.tokenUrzadzenia)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

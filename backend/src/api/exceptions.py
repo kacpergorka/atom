@@ -8,17 +8,31 @@
 #  ▀▀    ▀▀     ▀▀       ▀▀▀▀    ▀▀    ▀▀            ▀▀    ▀▀  ▀▀         ▀▀▀▀▀▀
 #
 
-class BłądWewnętrzny(Exception):
-    pass
+class BłądAPI(Exception):
+    """
+    Bazowy wyjątek błędów obsługiwanych przez Atom API.
+    """
 
 
-class BrakWymaganychDanych(Exception):
-    pass
+class BłądWewnętrzny(BłądAPI):
+    """
+    Błąd przetwarzania danych po stronie backendu.
+    """
 
 
-class NieprawidłowyIdentyfikator(Exception):
-    pass
+class BrakWymaganychDanych(BłądAPI):
+    """
+    Błąd brakujących danych konfiguracyjnych backendu.
+    """
 
 
-class ŹródłoNiedostępne(Exception):
-    pass
+class NieprawidłowyIdentyfikator(BłądAPI):
+    """
+    Błąd nieprawidłowego identyfikatora przekazanego do API.
+    """
+
+
+class ŹródłoNiedostępne(BłądAPI):
+    """
+    Błąd niedostępnego źródła danych zewnętrznych.
+    """

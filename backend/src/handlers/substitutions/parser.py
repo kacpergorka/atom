@@ -263,6 +263,9 @@ async def wyodrębnijZastępstwa(
             bool: True, jeśli wartość jest niepusta i różna od etykiety, False w przeciwnym razie.
         """
 
+        if not isinstance(wartość, str):
+            return False
+
         wartość = wartość.strip()
         return bool(wartość and wartość.lower() != etykieta.lower())
 
@@ -496,7 +499,7 @@ async def wyodrębnijZastępstwa(
                         "dzien": dzieńWpisu,
                         "grupa": None,
                         "nauczyciel": aktualnyNauczyciel or ", ".join(wyodrębnieniNauczyciele) or "Nieznany",
-                        "lekcja": int(lekcja) if sprawdźPrzydatne(lekcja, "Lekcja") else None,
+                        "lekcja": int(lekcja) if sprawdźPrzydatne(lekcja, "Lekcja") and lekcja.isdigit() else None,
                         "opis": opis if sprawdźPrzydatne(opis, "Opis") else None,
                         "zastepca": zastępca if sprawdźPrzydatne(zastępca, "Zastępca") else None,
                         "uwagi": uwagi if sprawdźPrzydatne(uwagi, "Uwagi") else None

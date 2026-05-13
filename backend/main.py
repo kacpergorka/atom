@@ -10,6 +10,7 @@
 
 # Standardowe biblioteki
 import asyncio
+from collections.abc import AsyncIterator
 from contextlib import (
     asynccontextmanager,
     suppress
@@ -48,7 +49,14 @@ if os.getenv("DOCKER") != "true":
     load_dotenv()
 
 @asynccontextmanager
-async def lifespan(_: FastAPI):
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    """
+    Zarządza cyklem życia współdzielonych zasobów Atom API.
+
+    Args:
+        _ (FastAPI): Instancja aplikacji FastAPI.
+    """
+
     zadanieMonitoraPowiadomień: asyncio.Task | None = None
     try:
         await atom.start()

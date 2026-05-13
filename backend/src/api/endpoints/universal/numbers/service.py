@@ -35,7 +35,7 @@ async def pobierzSzczęśliweNumerki() -> UniwersalneSzczesliweNumerki:
     Pobiera i przetwarza szczęśliwe numerki.
 
     Returns:
-        UniwersalneSzczesliweNumerki: Słownik zawierający datę, szczęśliwe numerki i informcję.
+        UniwersalneSzczesliweNumerki: Słownik zawierający datę, szczęśliwe numerki i informację.
 
     Raises:
         BłądWewnętrzny: Gdy wystąpi nieoczekiwany błąd przetwarzania.

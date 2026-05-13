@@ -46,7 +46,7 @@ def wyodrębnijOgłoszenia(
         Zwraca pustą strukturę ogłoszeń w standardowym formacie.
 
         Returns:
-            Zastępstwa: Pusta struktura ogłoszeń.
+            Ogłoszenia: Pusta struktura ogłoszeń.
         """
         return {
             "aktualnaStrona": 1,
@@ -83,7 +83,7 @@ def wyodrębnijOgłoszenia(
             wiersz: Element HTML reprezentujący ogłoszenie.
 
         Returns:
-            Tag | None: Link prowadzący do szczegółów ogłoszenia w wierszu albo `None`, jeśli nie uda się znaleść linku.
+            Tag | None: Link prowadzący do szczegółów ogłoszenia w wierszu albo `None`, jeśli nie uda się znaleźć linku.
         """
         wzórLinkuOgłoszenia = re.compile(r"-w\d+,\d+,\d+\.html(?:$|\?)")
         przycisk = wiersz.find("a", class_=lambda klasa: klasa and "btn" in klasa)

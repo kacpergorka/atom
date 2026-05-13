@@ -89,6 +89,12 @@ async def sprawdźCzyDzisiajJestWolne(
         """
 
         try:
+            if atom.sesja is None:
+                logowanie.warning(
+                    "Brak aktywnej sesji HTTP. Pomijanie pobierania danych z OpenHolidays API."
+                )
+                return None, None
+
             urlŚwiętaSzkolne = "https://openholidaysapi.org/SchoolHolidays"
             urlŚwiętaPubliczne = "https://openholidaysapi.org/PublicHolidays"
             parametryOpenHolidays = {
@@ -168,7 +174,7 @@ async def sprawdźCzyDzisiajJestWolne(
 
     zawartośćStrony = None
 
-    if url and kodowanie:
+    if url and kodowanie and atom.sesja is not None:
         parametry = {
             "co": "10",
             "funk": "2",
@@ -187,7 +193,7 @@ async def sprawdźCzyDzisiajJestWolne(
             )
     else:
         logowanie.warning(
-            "Brak danych potrzebnych do pobrania szkolnego kalendarza. Pomijanie sprawdzania strony przy ustalaniu dnia wolnego."
+            "Brak danych lub aktywnej sesji HTTP potrzebnej do pobrania szkolnego kalendarza. Pomijanie sprawdzania strony przy ustalaniu dnia wolnego."
         )
 
     return sprawdźCzyDzieńJestWolny(dzisiaj, zawartośćStrony, daneŚwiątPublicznych, daneŚwiątSzkolnych)

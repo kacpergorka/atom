@@ -21,6 +21,10 @@ async def zainicjalizujBazęNumerków() -> None:
     """
 
     def _zainicjalizujBazęNumerków() -> None:
+        """
+        Tworzy strukturę bazy danych szczęśliwych numerków w wątku roboczym.
+        """
+
         with połączBazęDanych() as połączenie:
             połączenie.executescript(
                 """
@@ -48,6 +52,10 @@ async def pobierzSzczęśliweNumerki(data: str) -> UniwersalneSzczesliweNumerki 
     """
 
     def _pobierzSzczęśliweNumerki(data: str) -> UniwersalneSzczesliweNumerki | None:
+        """
+        Pobiera szczęśliwe numerki zapisane dla wybranej daty w wątku roboczym.
+        """
+
         with połączBazęDanych() as połączenie:
             wiersz = połączenie.execute(
                 """
@@ -83,6 +91,10 @@ async def zapiszSzczęśliweNumerki(numerki: UniwersalneSzczesliweNumerki) -> No
     """
 
     def _zapiszSzczęśliweNumerki(numerki: UniwersalneSzczesliweNumerki) -> None:
+        """
+        Zapisuje szczęśliwe numerki dla danego dnia do bazy danych w wątku roboczym.
+        """
+
         pierwszyNumerek = numerki.numerki[0] if numerki.numerki else None
         drugiNumerek = numerki.numerki[1] if numerki.numerki else None
 

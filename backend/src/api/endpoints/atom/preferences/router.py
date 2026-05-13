@@ -19,11 +19,9 @@ from fastapi import (
 # Wewnętrzne importy
 from src.api.endpoints.atom.preferences.schemas import Preferencje
 from src.handlers.notifications import database
-from src.handlers.accounts.auth import (
-    AktualnyUżytkownik,
-    pobierzAktualnegoUżytkownika
-)
+from src.handlers.accounts.auth import pobierzAktualnegoUżytkownika
 from src.handlers.accounts.limits import ograniczŻądania
+from src.types.accounts import AktualnyUżytkownik
 from src.types.notifications import PreferencjePowiadomień
 
 router = APIRouter(

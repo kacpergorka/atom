@@ -21,14 +21,14 @@ router = APIRouter(
 )
 
 @router.get(
-        "",
-        response_model=AtomoweSzczesliweNumerki,
-        responses={
-            500: {"description": "Wystąpił nieoczekiwany błąd po stronie serwera."},
-            502: {"description": "Wystąpił błąd podczas przetwarzania danych."}
-        },
-        summary="Pobiera dwa szczęśliwe numerki dla aplikacji mobilnej Atom.",
-        description="Pobiera dwa losowo wygenerowane szczęśliwe numerki z zakresu od 1 do 35."
+    "",
+    response_model=AtomoweSzczesliweNumerki,
+    responses={
+        500: {"description": "Wystąpił nieoczekiwany błąd po stronie serwera."},
+        502: {"description": "Wystąpił błąd podczas przetwarzania danych."}
+    },
+    summary="Pobiera dwa szczęśliwe numerki dla aplikacji mobilnej Atom.",
+    description="Pobiera dwa losowo wygenerowane szczęśliwe numerki z zakresu od 1 do 35."
 )
 async def numerki() -> AtomoweSzczesliweNumerki:
     return await pobierzSzczęśliweNumerki()

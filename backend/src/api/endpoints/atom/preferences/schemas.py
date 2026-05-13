@@ -12,6 +12,10 @@
 from pydantic import BaseModel
 
 class Preferencje(BaseModel):
+    """
+    Model preferencji użytkownika używanych przez powiadomienia aplikacji Atom.
+    """
+
     oddzial: str | None = None
     identyfikatorOddzialu: str | None = None
     nauczyciel: str | None = None

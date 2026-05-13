@@ -15,7 +15,6 @@ from zoneinfo import ZoneInfo
 
 # Wewnętrzne importy
 from src.types.numbers import SzczęśliweNumerki
-from src.handlers.logging import logowanie
 
 async def wygenerujSzczęśliweNumerki(dzieńWolny: bool) -> SzczęśliweNumerki:
     """
@@ -27,30 +26,19 @@ async def wygenerujSzczęśliweNumerki(dzieńWolny: bool) -> SzczęśliweNumerki
     Returns:
         SzczęśliweNumerki: Słownik z datą, numerkami oraz opcjonalną informacją o dniu wolnym.
     """
-    try:
-        dzisiaj = datetime.now(ZoneInfo("Europe/Warsaw")).date()
-        dzisiejszaData = dzisiaj.isoformat()
 
-        if dzieńWolny:
-            return SzczęśliweNumerki(
-                data=dzisiejszaData,
-                numerki=None,
-                informacja="Dzień wolny od zajęć."
-            )
+    dzisiaj = datetime.now(ZoneInfo("Europe/Warsaw")).date()
+    dzisiejszaData = dzisiaj.isoformat()
 
-        szczęśliweNumerki = SzczęśliweNumerki(
-            data=dzisiejszaData,
-            numerki=tuple(random.sample(range(1, 36), 2)),
-            informacja=None
-        )
-
-        return szczęśliweNumerki
-    except Exception as e:
-        logowanie.exception(
-            f"Wystąpił błąd podczas generowania numerków. Więcej informacji: {e}"
-        )
+    if dzieńWolny:
         return SzczęśliweNumerki(
             data=dzisiejszaData,
             numerki=None,
-            informacja="Wystąpił niespodziewany błąd. Spróbuj ponownie poźniej."
+            informacja="Dzień wolny od zajęć."
         )
+
+    return SzczęśliweNumerki(
+        data=dzisiejszaData,
+        numerki=tuple(random.sample(range(1, 36), 2)),
+        informacja=None
+    )

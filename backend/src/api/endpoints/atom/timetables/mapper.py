@@ -112,8 +112,8 @@ def mapujPlanLekcji(dane: SurowyPlanLekcji) -> AtomowyPlanLekcji:
         surowyIdentyfikator = (
             f"{dzień}|{numer}|{początek}|{koniec}|{przedmiot}|{nauczyciel or 'brak'}|{sala or 'brak'}|{oddzialy or 'brak'}|{zastepca or 'brak'}|{opis or 'brak'}|{uwagi or 'brak'}"
         )
-        hash = hashlib.sha256(surowyIdentyfikator.encode("utf-8"))
-        return hash.hexdigest()
+        skrót = hashlib.sha256(surowyIdentyfikator.encode("utf-8"))
+        return skrót.hexdigest()
 
     lekcjeZmapowane: list[AtomowaLekcja] = []
 

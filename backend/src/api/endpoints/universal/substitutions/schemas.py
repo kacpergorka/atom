@@ -12,6 +12,10 @@
 from pydantic import BaseModel
 
 class UniwersalneZastepstwo(BaseModel):
+    """
+    Model zastępstwa zwracanego przez uniwersalne API.
+    """
+
     zidentyfikowane: bool
     dzien: str | None
     grupa: str | None
@@ -23,6 +27,10 @@ class UniwersalneZastepstwo(BaseModel):
 
 
 class UniwersalneZastepstwa(BaseModel):
+    """
+    Model listy zastępstw zwracanej przez uniwersalne API.
+    """
+
     identyfikator: str | None
     dni: list[str]
     informacje: str

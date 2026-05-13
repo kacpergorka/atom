@@ -12,7 +12,10 @@
 from src.api.endpoints.atom.timetables.mapper import mapujPlanLekcji
 from src.api.endpoints.atom.timetables.schemas import AtomowyPlanLekcji
 from src.api.endpoints.universal.timetables.service import pobierzPlanLekcji as pobierzUniwersalnyPlanLekcji
-from src.api.exceptions import BłądWewnętrzny
+from src.api.exceptions import (
+    BłądAPI,
+    BłądWewnętrzny
+)
 from src.handlers.logging import logowanie
 
 async def pobierzPlanLekcji(
@@ -43,6 +46,8 @@ async def pobierzPlanLekcji(
         return mapujPlanLekcji(
             (await pobierzUniwersalnyPlanLekcji(identyfikator, grupy, zastepstwa, religia, edukacjaZdrowotna)).model_dump()
         )
+    except BłądAPI:
+        raise
     except Exception as e:
         logowanie.exception(
             f"Wystąpił błąd podczas mapowania danych do modelu API Atomu. Więcej informacji: {e}"

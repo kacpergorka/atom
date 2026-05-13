@@ -62,6 +62,10 @@ async def zainicjalizujBazęPowiadomień() -> None:
     """
 
     def _zainicjalizujBazęPowiadomień() -> None:
+        """
+        Tworzy strukturę bazy danych powiadomień w wątku roboczym.
+        """
+
         with połączBazęDanych() as połączenie:
             połączenie.executescript(
                 """
@@ -119,6 +123,10 @@ async def zapiszUrządzenie(
         identyfikatorUżytkownika: str,
         tokenUrządzenia: str
     ) -> None:
+        """
+        Zapisuje albo aktualizuje urządzenie końcowe dla powiadomień w wątku roboczym.
+        """
+
         with połączBazęDanych() as połączenie:
             połączenie.execute(
                 """
@@ -149,6 +157,10 @@ async def usuńUrządzenieUżytkownika(
         identyfikatorUżytkownika: str,
         tokenUrządzenia: str
     ) -> None:
+        """
+        Usuwa urządzenie przypisane do użytkownika w wątku roboczym.
+        """
+
         with połączBazęDanych() as połączenie:
             połączenie.execute(
                 "DELETE FROM urzadzenia_powiadomien WHERE identyfikator_uzytkownika = ? AND token_urzadzenia = ?",
@@ -160,13 +172,17 @@ async def usuńUrządzenieUżytkownika(
 
 async def usuńToken(tokenUrządzenia: str) -> None:
     """
-    Usuwa token urządzenia z bazy.
+    Usuwa token urządzenia z bazy danych.
 
     Args:
         tokenUrządzenia (str): Token APNs urządzenia.
     """
 
     def _usuńToken(tokenUrządzenia: str) -> None:
+        """
+        Usuwa token urządzenia z bazy danych w wątku roboczym.
+        """
+
         with połączBazęDanych() as połączenie:
             połączenie.execute("DELETE FROM urzadzenia_powiadomien WHERE token_urzadzenia = ?", (tokenUrządzenia,))
 
@@ -185,6 +201,10 @@ async def pobierzTokenyUżytkownika(identyfikatorUżytkownika: str) -> list[str]
     """
 
     def _pobierzTokenyUżytkownika(identyfikatorUżytkownika: str) -> list[str]:
+        """
+        Pobiera tokeny urządzeń użytkownika w wątku roboczym.
+        """
+
         with połączBazęDanych() as połączenie:
             wiersze = połączenie.execute(
                 """
@@ -209,6 +229,10 @@ async def zapiszPreferencje(preferencje: PreferencjePowiadomień) -> None:
     """
 
     def _zapiszPreferencje(preferencje: PreferencjePowiadomień) -> None:
+        """
+        Zapisuje preferencje użytkownika w wątku roboczym.
+        """
+
         with połączBazęDanych() as połączenie:
             połączenie.execute(
                 f"""
@@ -253,6 +277,10 @@ async def pobierzPreferencje() -> list[PreferencjePowiadomień]:
     """
 
     def _pobierzPreferencje() -> list[PreferencjePowiadomień]:
+        """
+        Pobiera preferencje używane przez monitor powiadomień w wątku roboczym.
+        """
+
         with połączBazęDanych() as połączenie:
             wiersze = połączenie.execute(
                 f"""
@@ -279,6 +307,10 @@ async def pobierzPreferencjeUżytkownika(identyfikatorUżytkownika: str) -> Pref
     """
 
     def _pobierzPreferencjeUżytkownika(identyfikatorUżytkownika: str) -> PreferencjePowiadomień | None:
+        """
+        Pobiera preferencje użytkownika w wątku roboczym.
+        """
+
         with połączBazęDanych() as połączenie:
             wiersz = połączenie.execute(
                 f"""
@@ -303,6 +335,10 @@ async def usuńDaneUżytkownika(identyfikatorUżytkownika: str) -> None:
     """
 
     def _usuńDaneUżytkownika(identyfikatorUżytkownika: str) -> None:
+        """
+        Usuwa lokalne dane powiadomień użytkownika w wątku roboczym.
+        """
+
         with połączBazęDanych() as połączenie:
             połączenie.execute(
                 "DELETE FROM urzadzenia_powiadomien WHERE identyfikator_uzytkownika = ?",
@@ -328,6 +364,10 @@ async def pobierzStanMonitora(klucz: str) -> str | None:
     """
 
     def _pobierzStanMonitora(klucz: str) -> str | None:
+        """
+        Pobiera ostatni odcisk danych monitora w wątku roboczym.
+        """
+
         with połączBazęDanych() as połączenie:
             wiersz = połączenie.execute(
                 "SELECT odcisk FROM monitor_powiadomien WHERE klucz = ?",
@@ -344,7 +384,7 @@ async def zapiszStanMonitora(
     odcisk: str
 ) -> None:
     """
-    Zapisuje ostatni odcisk monitora.
+    Zapisuje ostatni odcisk danych monitora.
 
     Args:
         klucz (str): Klucz monitorowanego zestawu danych.
@@ -355,6 +395,10 @@ async def zapiszStanMonitora(
         klucz: str,
         odcisk: str
     ) -> None:
+        """
+        Zapisuje ostatni odcisk danych monitora w wątku roboczym.
+        """
+
         with połączBazęDanych() as połączenie:
             połączenie.execute(
                 """

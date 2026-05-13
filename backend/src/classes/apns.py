@@ -21,6 +21,7 @@ from src.types.notifications import (
     KonfiguracjaAPNs,
     WynikAPNs
 )
+from src.handlers.logging import logowanie
 
 class APNs:
     """
@@ -100,8 +101,14 @@ class APNs:
         """
 
         if self.klient is not None:
-            await self.klient.aclose()
-            self.klient = None
+            try:
+                await self.klient.aclose()
+            except Exception as e:
+                logowanie.exception(
+                    f"Wystąpił błąd podczas zamykania klienta HTTP APNs. Więcej informacji: {e}"
+                )
+            finally:
+                self.klient = None
 
     async def wyślijPowiadomienie(
         self,

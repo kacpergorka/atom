@@ -8,10 +8,14 @@
 #  ▀▀    ▀▀     ▀▀       ▀▀▀▀    ▀▀    ▀▀            ▀▀    ▀▀  ▀▀         ▀▀▀▀▀▀
 #
 
-# Standardowe biblioteki
-from typing import TypedDict
+# Zewnętrzne biblioteki
+from pydantic import BaseModel
 
-class Zastępstwo(TypedDict):
+class Zastępstwo(BaseModel):
+    """
+    Słownik pojedynczego zastępstwa.
+    """
+
     zidentyfikowane: bool
     dzien: str | None
     grupa: str | None
@@ -22,7 +26,11 @@ class Zastępstwo(TypedDict):
     uwagi: str | None
 
 
-class Zastępstwa(TypedDict):
+class Zastępstwa(BaseModel):
+    """
+    Słownik listy zastępstw.
+    """
+
     identyfikator: str | None
     dni: list[str]
     informacje: str

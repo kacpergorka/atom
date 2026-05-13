@@ -8,42 +8,70 @@
 #  ▀▀    ▀▀     ▀▀       ▀▀▀▀    ▀▀    ▀▀            ▀▀    ▀▀  ▀▀         ▀▀▀▀▀▀
 #
 
-# Standardowe biblioteki
-from typing import TypedDict
+# Zewnętrzne biblioteki
+from pydantic import BaseModel
 
-class KonfiguracjaListy(TypedDict):
+class KonfiguracjaListy(BaseModel):
+    """
+    Słownik konfiguracji list planu lekcji.
+    """
+
     url: str
     kodowanie: str
 
 
-class KonfiguracjaSzkoły(TypedDict):
+class KonfiguracjaSzkoły(BaseModel):
+    """
+    Słownik konfiguracji strony szkoły.
+    """
+
     url: str
     kodowanie: str
 
 
-class KonfiguracjaOgłoszeń(TypedDict):
+class KonfiguracjaOgłoszeń(BaseModel):
+    """
+    Słownik konfiguracji ogłoszeń.
+    """
+
     url: str
     kodowanie: str
 
 
-class KonfiguracjaPlanów(TypedDict):
+class KonfiguracjaPlanów(BaseModel):
+    """
+    Słownik konfiguracji planów lekcji.
+    """
+
     url: str
     kodowanie: str
 
 
-class KonfiguracjaZastępstw(TypedDict):
+class KonfiguracjaZastępstw(BaseModel):
+    """
+    Słownik konfiguracji zastępstw.
+    """
+
     url: str
     kodowanie: str
 
 
-class KonfiguracjaGrup(TypedDict):
+class KonfiguracjaGrup(BaseModel):
+    """
+    Słownik konfiguracji grup lekcyjnych.
+    """
+
     zajeciaLekcyjne: list[str]
     zajeciaPraktyczne: list[str]
     wychowanieFizyczne: list[str]
     pozostale: list[str]
 
 
-class Konfiguracja(TypedDict):
+class Konfiguracja(BaseModel):
+    """
+    Słownik pełnej konfiguracji backendu.
+    """
+
     wersja: str
     lista: KonfiguracjaListy
     szkola: KonfiguracjaSzkoły

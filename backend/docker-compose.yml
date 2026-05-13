@@ -22,7 +22,7 @@ services:
             SUPABASE_SERVICE_ROLE_KEY: "${SUPABASE_SERVICE_ROLE_KEY:-}"
         volumes:
             - ./data:/app/data
-            - ./keys:/keys:ro
+            - ./keys:/app/keys:ro
         depends_on:
             - redis
         restart: unless-stopped

@@ -8,27 +8,43 @@
 #  ▀▀    ▀▀     ▀▀       ▀▀▀▀    ▀▀    ▀▀            ▀▀    ▀▀  ▀▀         ▀▀▀▀▀▀
 #
 
-# Standardowe biblioteki
-from typing import TypedDict
+# Zewnętrzne biblioteki
+from pydantic import BaseModel
 
-class Data(TypedDict):
+class Data(BaseModel):
+    """
+    Słownik zakresu obowiązywania planu lekcji.
+    """
+
     obowiazuje: str | None
     wygasa: str | None
 
 
-class ZastępstwoPlanu(TypedDict):
+class ZastępstwoPlanu(BaseModel):
+    """
+    Słownik zastępstwa przypisanego do lekcji w planie.
+    """
+
     nauczyciel: str | None
     opis: str | None
     uwagi: str | None
 
 
-class ElementPlanu(TypedDict):
+class ElementPlanu(BaseModel):
+    """
+    Słownik elementu powiązanego z planem lekcji.
+    """
+
     tekst: str | None
     url: str | None
     identyfikator: str | None
 
 
-class Lekcja(TypedDict):
+class Lekcja(BaseModel):
+    """
+    Słownik lekcji w planie lekcji.
+    """
+
     przedmiot: str
     grupa: str | None
     nauczyciel: ElementPlanu | None
@@ -37,7 +53,11 @@ class Lekcja(TypedDict):
     zastepstwo: ZastępstwoPlanu | None
 
 
-class WpisPlanu(TypedDict):
+class WpisPlanu(BaseModel):
+    """
+    Słownik wpisu godziny lekcyjnej w planie.
+    """
+
     numer: int
     poczatek: str
     koniec: str
@@ -45,7 +65,11 @@ class WpisPlanu(TypedDict):
 
 PlanTygodniowy = dict[str, list[WpisPlanu]]
 
-class PlanLekcji(TypedDict):
+class PlanLekcji(BaseModel):
+    """
+    Słownik planu lekcji.
+    """
+
     nazwa: str
     kategoria: str | None
     url: str

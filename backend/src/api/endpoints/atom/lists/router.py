@@ -21,15 +21,15 @@ router = APIRouter(
 )
 
 @router.get(
-        "",
-        response_model=AtomoweListy,
-        responses={
-            500: {"description": "Wystąpił nieoczekiwany błąd po stronie serwera."},
-            502: {"description": "Wystąpił błąd podczas przetwarzania danych."},
-            503: {"description": "Przekroczono czas oczekiwania na połączenie."}
-        },
-        summary="Pobiera listy oddziałów oraz nauczycieli dla aplikacji mobilnej Atom.",
-        description="Pobiera listy oddziałów oraz nauczycieli ze strony internetowej planu lekcji, której to URL wprowadzony jest w pliku konfiguracyjnym API."
+    "",
+    response_model=AtomoweListy,
+    responses={
+        500: {"description": "Wystąpił nieoczekiwany błąd po stronie serwera."},
+        502: {"description": "Wystąpił błąd podczas przetwarzania danych."},
+        503: {"description": "Przekroczono czas oczekiwania na połączenie."}
+    },
+    summary="Pobiera listy oddziałów oraz nauczycieli dla aplikacji mobilnej Atom.",
+    description="Pobiera listy oddziałów oraz nauczycieli ze strony internetowej planu lekcji, której to URL wprowadzony jest w pliku konfiguracyjnym API."
 )
 async def listy() -> AtomoweListy:
     return await pobierzListy()

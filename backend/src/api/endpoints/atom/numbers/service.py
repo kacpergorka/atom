@@ -12,7 +12,10 @@
 from src.api.endpoints.atom.numbers.mapper import mapujSzczęśliweNumerki
 from src.api.endpoints.atom.numbers.schemas import AtomoweSzczesliweNumerki
 from src.api.endpoints.universal.numbers.service import pobierzSzczęśliweNumerki as pobierzUniwersalneSzczęśliweNumerki
-from src.api.exceptions import BłądWewnętrzny
+from src.api.exceptions import (
+    BłądAPI,
+    BłądWewnętrzny
+)
 from src.handlers.logging import logowanie
 
 async def pobierzSzczęśliweNumerki() -> AtomoweSzczesliweNumerki:
@@ -30,6 +33,8 @@ async def pobierzSzczęśliweNumerki() -> AtomoweSzczesliweNumerki:
         return mapujSzczęśliweNumerki(
             (await pobierzUniwersalneSzczęśliweNumerki()).model_dump()
         )
+    except BłądAPI:
+        raise
     except Exception as e:
         logowanie.exception(
             f"Wystąpił błąd podczas mapowania danych do modelu API Atomu. Więcej informacji: {e}"

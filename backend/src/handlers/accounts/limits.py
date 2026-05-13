@@ -10,7 +10,10 @@
 
 # Standardowe biblioteki
 import asyncio
-from collections.abc import Callable
+from collections.abc import (
+    Awaitable,
+    Callable
+)
 import time
 
 # Zewnętrzne biblioteki
@@ -22,11 +25,9 @@ from fastapi import (
 from redis.exceptions import RedisError
 
 # Wewnętrzne importy
-from src.handlers.accounts.auth import (
-    AktualnyUżytkownik,
-    pobierzAktualnegoUżytkownika
-)
 from src.classes.atom import atom
+from src.handlers.accounts.auth import pobierzAktualnegoUżytkownika
+from src.types.accounts import AktualnyUżytkownik
 
 licznikiLimitów: dict[str, tuple[float, int]] = {}
 blokadaPamięci = asyncio.Lock()
@@ -76,7 +77,7 @@ def ograniczŻądania(
     obszar: str,
     maksimum: int,
     czasPrzedziału: int
-) -> Callable:
+) -> Callable[..., Awaitable[None]]:
     """
     Tworzy zależność FastAPI ograniczającą liczbę żądań użytkownika.
 

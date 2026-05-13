@@ -12,7 +12,10 @@
 from src.api.endpoints.atom.announcements.mapper import mapujOgłoszenia
 from src.api.endpoints.atom.announcements.schemas import AtomoweOgloszenia
 from src.api.endpoints.universal.announcements.service import pobierzOgłoszenia as pobierzUniwersalneOgłoszenia
-from src.api.exceptions import BłądWewnętrzny
+from src.api.exceptions import (
+    BłądAPI,
+    BłądWewnętrzny
+)
 from src.handlers.logging import logowanie
 
 async def pobierzOgłoszenia(strona: int) -> AtomoweOgloszenia:
@@ -33,6 +36,8 @@ async def pobierzOgłoszenia(strona: int) -> AtomoweOgloszenia:
         return mapujOgłoszenia(
             (await pobierzUniwersalneOgłoszenia(strona)).model_dump()
         )
+    except BłądAPI:
+        raise
     except Exception as e:
         logowanie.exception(
             f"Wystąpił błąd podczas mapowania danych do modelu API Atomu. Więcej informacji: {e}"
