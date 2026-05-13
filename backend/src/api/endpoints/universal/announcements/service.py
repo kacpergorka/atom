@@ -17,7 +17,6 @@ from urllib.parse import (
 )
 
 # Wewnętrzne importy
-from src.api.endpoints.universal.announcements.schemas import UniwersalneOgloszenia
 from src.api.exceptions import (
     BłądWewnętrzny,
     BrakWymaganychDanych,
@@ -33,8 +32,9 @@ from src.handlers.cache import (
 from src.handlers.configuration import konfiguracja
 from src.handlers.logging import logowanie
 from src.handlers.scraper import pobierzZawartośćStrony
+from src.schemas.announcements import Ogłoszenia
 
-async def pobierzOgłoszenia(strona: int) -> UniwersalneOgloszenia:
+async def pobierzOgłoszenia(strona: int) -> Ogłoszenia:
     """
     Pobiera i przetwarza aktualności na podstawie przekazanych parametrów wejściowych.
 
@@ -42,7 +42,7 @@ async def pobierzOgłoszenia(strona: int) -> UniwersalneOgloszenia:
         strona (int): Numer strony listy aktualności.
 
     Returns:
-        UniwersalneOgloszenia: Słownik zawierający ustrukturyzowane ogłoszenia.
+        Ogłoszenia: Słownik zawierający ustrukturyzowane ogłoszenia.
 
     Raises:
         BłądWewnętrzny: Gdy wystąpi nieoczekiwany błąd przetwarzania.
@@ -96,7 +96,7 @@ async def pobierzOgłoszenia(strona: int) -> UniwersalneOgloszenia:
         urlStrony = zbudujUrlStrony(url, strona)
 
         kluczCache = f"cache:ogloszenia:{strona}"
-        cacheOgłoszeń = await pobierzModel(kluczCache, UniwersalneOgloszenia)
+        cacheOgłoszeń = await pobierzModel(kluczCache, Ogłoszenia)
 
         if cacheOgłoszeń is not None:
             return cacheOgłoszeń
@@ -105,7 +105,7 @@ async def pobierzOgłoszenia(strona: int) -> UniwersalneOgloszenia:
             zawartośćStrony = await pobierzZawartośćStrony(atom.sesja, urlStrony, kodowanie)
 
         dane = wyodrębnijOgłoszenia(zawartośćStrony, urlStrony)
-        przetworzoneOgłoszenia = UniwersalneOgloszenia.model_validate(dane)
+        przetworzoneOgłoszenia = Ogłoszenia.model_validate(dane)
 
         await zapiszModel(kluczCache, przetworzoneOgłoszenia)
         return przetworzoneOgłoszenia

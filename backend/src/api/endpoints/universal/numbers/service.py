@@ -13,7 +13,6 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 # Wewnętrzne importy
-from src.api.endpoints.universal.numbers.schemas import UniwersalneSzczesliweNumerki
 from src.api.exceptions import (
     BłądWewnętrzny,
     BrakWymaganychDanych
@@ -27,15 +26,16 @@ from src.handlers.holidays.checker import sprawdźCzyDzisiajJestWolne
 from src.handlers.logging import logowanie
 from src.handlers.numbers import database
 from src.handlers.numbers.generator import wygenerujSzczęśliweNumerki
+from src.schemas.numbers import SzczęśliweNumerki
 
 strefaCzasowa = ZoneInfo("Europe/Warsaw")
 
-async def pobierzSzczęśliweNumerki() -> UniwersalneSzczesliweNumerki:
+async def pobierzSzczęśliweNumerki() -> SzczęśliweNumerki:
     """
     Pobiera i przetwarza szczęśliwe numerki.
 
     Returns:
-        UniwersalneSzczesliweNumerki: Słownik zawierający datę, szczęśliwe numerki i informację.
+        SzczęśliweNumerki: Słownik zawierający datę, szczęśliwe numerki i informację.
 
     Raises:
         BłądWewnętrzny: Gdy wystąpi nieoczekiwany błąd przetwarzania.
@@ -57,7 +57,7 @@ async def pobierzSzczęśliweNumerki() -> UniwersalneSzczesliweNumerki:
         dzisiejszaData = dzisiaj.isoformat()
 
         kluczCache = f"cache:numerki:{dzisiejszaData}"
-        cacheNumerków = await pobierzModel(kluczCache, UniwersalneSzczesliweNumerki)
+        cacheNumerków = await pobierzModel(kluczCache, SzczęśliweNumerki)
 
         if cacheNumerków is not None:
             return cacheNumerków
@@ -70,7 +70,7 @@ async def pobierzSzczęśliweNumerki() -> UniwersalneSzczesliweNumerki:
 
         dzieńWolny = await sprawdźCzyDzisiajJestWolne(url, kodowanie, dzisiaj)
 
-        szczęśliweNumerki = UniwersalneSzczesliweNumerki.model_validate(
+        szczęśliweNumerki = SzczęśliweNumerki.model_validate(
             await wygenerujSzczęśliweNumerki(dzieńWolny)
         )
 

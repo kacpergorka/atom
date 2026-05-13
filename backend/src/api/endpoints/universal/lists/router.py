@@ -15,8 +15,8 @@ from fastapi import (
 )
 
 # Wewnętrzne importy
-from src.api.endpoints.universal.lists.schemas import UniwersalneListy
 from src.api.endpoints.universal.lists.service import pobierzListy
+from src.schemas.lists import Listy
 
 router = APIRouter(
     prefix="/v1/listy",
@@ -25,7 +25,7 @@ router = APIRouter(
 
 @router.get(
     "",
-    response_model=UniwersalneListy,
+    response_model=Listy,
     responses={
         500: {"description": "Wystąpił nieoczekiwany błąd po stronie serwera."},
         502: {"description": "Wystąpił błąd podczas przetwarzania danych."},
@@ -38,5 +38,5 @@ async def listy(
     oddzialy: bool = Query(True, description="Określa, czy uwzględnić listę oddziałów."),
     nauczyciele: bool = Query(True, description="Określa, czy uwzględnić listę nauczycieli."),
     sale: bool = Query(True, description="Określa, czy uwzględnić listę sal.")
-) -> UniwersalneListy:
+) -> Listy:
     return await pobierzListy(oddzialy, nauczyciele, sale)

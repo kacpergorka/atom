@@ -9,8 +9,8 @@
 #
 
 # Wewnętrzne importy
-from src.api.endpoints.universal.lists.schemas import UniwersalnyElementListy
 from src.api.exceptions import NieprawidłowyIdentyfikator
+from src.schemas.lists import ElementListy
 
 def normalizujIdentyfikator(identyfikator: str | None) -> str:
     """
@@ -39,18 +39,18 @@ def normalizujIdentyfikator(identyfikator: str | None) -> str:
 
 def sprawdźIstnienieElementu(
     identyfikator: str,
-    listaOddziałów: list[UniwersalnyElementListy],
-    listaNauczycieli: list[UniwersalnyElementListy],
-    listaSal: list[UniwersalnyElementListy]
+    listaOddziałów: list[ElementListy],
+    listaNauczycieli: list[ElementListy],
+    listaSal: list[ElementListy]
 ) -> None:
     """
     Sprawdza, czy identyfikator wskazuje istniejący element list planu lekcji.
 
     Args:
         identyfikator (str): Identyfikator oddziału, nauczyciela lub sali.
-        listaOddziałów (list[UniwersalnyElementListy]): Lista wszystkich oddziałów.
-        listaNauczycieli (list[UniwersalnyElementListy]): Lista wszystkich nauczycieli.
-        listaSal (list[UniwersalnyElementListy]): Lista wszystkich sal.
+        listaOddziałów (list[ElementListy]): Lista wszystkich oddziałów.
+        listaNauczycieli (list[ElementListy]): Lista wszystkich nauczycieli.
+        listaSal (list[ElementListy]): Lista wszystkich sal.
 
     Raises:
         NieprawidłowyIdentyfikator: Gdy prefiks jest nieobsługiwany lub element nie istnieje.
@@ -77,16 +77,16 @@ def sprawdźIstnienieElementu(
 
 def wyszukajElement(
     identyfikator: str,
-    listaOddziałów: list[UniwersalnyElementListy],
-    listaNauczycieli: list[UniwersalnyElementListy]
+    listaOddziałów: list[ElementListy],
+    listaNauczycieli: list[ElementListy]
 ) -> tuple[str | None, str | None]:
     """
     Wyszukuje element odpowiadający identyfikatorowi i zwraca nazwę oddziału lub nauczyciela.
 
     Args:
         identyfikator (str): Identyfikator oddziału lub nauczyciela, np. o17, n78.
-        listaOddziałów (list[UniwersalnyElementListy]): Lista wszystkich oddziałów.
-        listaNauczycieli (list[UniwersalnyElementListy]): Lista wszystkich nauczycieli.
+        listaOddziałów (list[ElementListy]): Lista wszystkich oddziałów.
+        listaNauczycieli (list[ElementListy]): Lista wszystkich nauczycieli.
 
     Returns:
         tuple[str | None, str | None]: (wybranyOddział, wybranyNauczyciel)

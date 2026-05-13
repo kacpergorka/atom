@@ -21,8 +21,8 @@ from src.api.endpoints.atom.preferences.schemas import Preferencje
 from src.handlers.notifications import database
 from src.handlers.accounts.auth import pobierzAktualnegoUżytkownika
 from src.handlers.accounts.limits import ograniczŻądania
-from src.models.accounts import AktualnyUżytkownik as AtomowyAktualnyUżytkownik
-from src.models.notifications import PreferencjePowiadomień as AtomowePreferencjePowiadomień
+from src.models.accounts import AktualnyUżytkownik
+from src.models.notifications import PreferencjePowiadomień
 
 router = APIRouter(
     prefix="/preferencje",
@@ -41,7 +41,7 @@ router = APIRouter(
     description="Pobiera preferencje powiązane z kontem aktualnego użytkownika z JWT."
 )
 async def pobierz(
-    użytkownik: AtomowyAktualnyUżytkownik = Depends(pobierzAktualnegoUżytkownika),
+    użytkownik: AktualnyUżytkownik = Depends(pobierzAktualnegoUżytkownika),
     _: None = Depends(ograniczŻądania("preferencje:pobieranie", maksimum=30, czasPrzedziału=60)),
 ) -> Preferencje | None:
     preferencje = await database.pobierzPreferencjeUżytkownika(użytkownik.identyfikator)
@@ -77,11 +77,11 @@ async def pobierz(
 )
 async def zapisz(
     dane: Preferencje,
-    użytkownik: AtomowyAktualnyUżytkownik = Depends(pobierzAktualnegoUżytkownika),
+    użytkownik: AktualnyUżytkownik = Depends(pobierzAktualnegoUżytkownika),
     _: None = Depends(ograniczŻądania("preferencje:zapis", maksimum=20, czasPrzedziału=60)),
 ) -> Response:
     await database.zapiszPreferencje(
-        AtomowePreferencjePowiadomień(
+        PreferencjePowiadomień(
             identyfikatorUżytkownika=użytkownik.identyfikator,
             oddział=dane.oddzial,
             identyfikatorOddziału=dane.identyfikatorOddzialu,

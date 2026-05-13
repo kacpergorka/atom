@@ -16,7 +16,6 @@ from src.api.endpoints.universal.helpers import (
 )
 from src.api.endpoints.universal.lists.service import pobierzListy
 from src.api.endpoints.universal.substitutions.service import pobierzZastępstwa
-from src.api.endpoints.universal.timetables.schemas import UniwersalnyPlanLekcji
 from src.api.exceptions import (
     BłądWewnętrzny,
     BrakWymaganychDanych,
@@ -37,6 +36,7 @@ from src.handlers.logging import logowanie
 from src.handlers.scraper import pobierzZawartośćStrony
 from src.handlers.timetables.assembler import zbudujPlanLekcji
 from src.handlers.timetables.parser import wyodrębnijPlanLekcji
+from src.schemas.timetables import PlanLekcji
 
 async def pobierzPlanLekcji(
     identyfikator: str,
@@ -44,7 +44,7 @@ async def pobierzPlanLekcji(
     zastepstwa: bool,
     religia: bool,
     edukacjaZdrowotna: bool
-) -> UniwersalnyPlanLekcji:
+) -> PlanLekcji:
     """
     Pobiera i przetwarza plan lekcji na podstawie przekazanych parametrów wejściowych.
 
@@ -56,7 +56,7 @@ async def pobierzPlanLekcji(
         edukacjaZdrowotna (bool): Flaga informująca, czy uwzględniać lekcje edukacji zdrowotnej w planie lekcji.
 
     Returns:
-        UniwersalnyPlanLekcji: Słownik zawierający ustrukturyzowany plan lekcji.
+        PlanLekcji: Słownik zawierający ustrukturyzowany plan lekcji.
 
     Raises:
         BłądWewnętrzny: Gdy wystąpi nieoczekiwany błąd przetwarzania.
@@ -99,7 +99,7 @@ async def pobierzPlanLekcji(
         identyfikator = normalizujIdentyfikator(identyfikator)
 
         kluczCache = f"cache:planlekcji:{identyfikator}:{zbudujFragmentKluczaCache(grupy)}:{normalizujStanOpcji(zastepstwa)}:{normalizujStanOpcji(religia)}:{normalizujStanOpcji(edukacjaZdrowotna)}"
-        cachePlanu = await pobierzModel(kluczCache, UniwersalnyPlanLekcji)
+        cachePlanu = await pobierzModel(kluczCache, PlanLekcji)
 
         if cachePlanu is not None:
             return cachePlanu.model_copy(update={"wolne": await pobierzStatusDniaWolnego()})
@@ -125,7 +125,7 @@ async def pobierzPlanLekcji(
         async with semafor:
             zawartośćStronyPlanu = await pobierzZawartośćStrony(atom.sesja, urlPlanu, kodowaniePlanów)
 
-        planLekcji = UniwersalnyPlanLekcji.model_validate(
+        planLekcji = PlanLekcji.model_validate(
             await wyodrębnijPlanLekcji(atom.sesja, zawartośćStronyPlanu, listaOddziałów, grupy, przedmiotyDodatkowe, zastepstwa, urlPlanu)
         )
         planLekcji = planLekcji.model_copy(update={"wolne": await pobierzStatusDniaWolnego()})
@@ -135,7 +135,7 @@ async def pobierzPlanLekcji(
                 await zapiszModel(kluczCache, planLekcji)
             return planLekcji
 
-        przetworzonyPlanLekcji = UniwersalnyPlanLekcji.model_validate(
+        przetworzonyPlanLekcji = PlanLekcji.model_validate(
             zbudujPlanLekcji(
                 planLekcji.model_dump(),
                 wyodrębnioneZastępstwa.model_dump()

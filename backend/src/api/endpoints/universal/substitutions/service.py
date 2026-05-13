@@ -15,7 +15,6 @@ from src.api.endpoints.universal.helpers import (
     zbudujPrzedmiotyDodatkowe
 )
 from src.api.endpoints.universal.lists.service import pobierzListy
-from src.api.endpoints.universal.substitutions.schemas import UniwersalneZastepstwa
 from src.api.exceptions import (
     BłądWewnętrzny,
     BrakWymaganychDanych,
@@ -34,6 +33,7 @@ from src.handlers.configuration import konfiguracja
 from src.handlers.logging import logowanie
 from src.handlers.scraper import pobierzZawartośćStrony
 from src.handlers.substitutions.parser import wyodrębnijZastępstwa
+from src.schemas.substitutions import Zastępstwa
 
 async def pobierzZastępstwa(
     identyfikator: str | None,
@@ -41,7 +41,7 @@ async def pobierzZastępstwa(
     religia: bool,
     edukacjaZdrowotna: bool,
     pomińCache: bool = False
-) -> UniwersalneZastepstwa:
+) -> Zastępstwa:
     """
     Pobiera i przetwarza zastępstwa na podstawie przekazanych parametrów wejściowych.
 
@@ -53,7 +53,7 @@ async def pobierzZastępstwa(
         pomińCache (bool): Flaga informująca, czy należy pominąć cache podczas pobierania danych.
 
     Returns:
-        UniwersalneZastepstwa: Słownik zawierający informacje o zastępstwach.
+        Zastępstwa: Słownik zawierający informacje o zastępstwach.
 
     Raises:
         BłądWewnętrzny: Gdy wystąpi nieoczekiwany błąd przetwarzania.
@@ -78,7 +78,7 @@ async def pobierzZastępstwa(
 
         identyfikatorTekst = identyfikator if identyfikator else "wszystkie"
         kluczCache = f"cache:zastepstwa:{identyfikatorTekst}:{zbudujFragmentKluczaCache(grupy)}:{normalizujStanOpcji(religia)}:{normalizujStanOpcji(edukacjaZdrowotna)}"
-        cacheZastępstw = None if pomińCache else await pobierzModel(kluczCache, UniwersalneZastepstwa)
+        cacheZastępstw = None if pomińCache else await pobierzModel(kluczCache, Zastępstwa)
 
         if cacheZastępstw is not None:
             return cacheZastępstw
@@ -95,7 +95,7 @@ async def pobierzZastępstwa(
         async with semafor:
             zawartośćStronyZastępstw = await pobierzZawartośćStrony(atom.sesja, urlZastępstw, kodowanieZastępstw)
 
-        przetworzoneZastępstwa = UniwersalneZastepstwa.model_validate(
+        przetworzoneZastępstwa = Zastępstwa.model_validate(
             await wyodrębnijZastępstwa(atom.sesja, zawartośćStronyZastępstw, listaOddziałów, listaNauczycieli, wybranyOddział, wybranyNauczyciel, grupy, przedmiotyDodatkowe)
         )
         await zapiszModel(kluczCache, przetworzoneZastępstwa)

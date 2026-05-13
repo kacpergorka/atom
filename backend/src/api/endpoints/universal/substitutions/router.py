@@ -15,8 +15,8 @@ from fastapi import (
 )
 
 # Wewnętrzne importy
-from src.api.endpoints.universal.substitutions.schemas import UniwersalneZastepstwa
 from src.api.endpoints.universal.substitutions.service import pobierzZastępstwa
+from src.schemas.substitutions import Zastępstwa
 
 router = APIRouter(
     prefix="/v1/zastepstwa",
@@ -25,7 +25,7 @@ router = APIRouter(
 
 @router.get(
     "",
-    response_model=UniwersalneZastepstwa,
+    response_model=Zastępstwa,
     responses={
         400: {"description": "Otrzymano nieprawidłowy identyfikator."},
         500: {"description": "Wystąpił nieoczekiwany błąd po stronie serwera."},
@@ -40,5 +40,5 @@ async def zastepstwa(
     grupy: list[str] | None = Query(None, description="Lista oznaczeń określających grupę przedmiotów. Wymagany identyfikator."),
     religia: bool = Query(True, description="Określa, czy uwzględniać lekcje religii."),
     edukacjaZdrowotna: bool = Query(True, description="Określa, czy uwzględniać lekcje edukacji zdrowotnej.")
-) -> UniwersalneZastepstwa:
+) -> Zastępstwa:
     return await pobierzZastępstwa(identyfikator, grupy, religia, edukacjaZdrowotna)

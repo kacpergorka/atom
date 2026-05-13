@@ -9,7 +9,6 @@
 #
 
 # Wewnętrzne importy
-from src.api.endpoints.universal.lists.schemas import UniwersalneListy
 from src.api.exceptions import (
     BłądWewnętrzny,
     BrakWymaganychDanych,
@@ -25,12 +24,13 @@ from src.handlers.configuration import konfiguracja
 from src.handlers.lists.parser import wyodrębnijListy
 from src.handlers.logging import logowanie
 from src.handlers.scraper import pobierzZawartośćStrony
+from src.schemas.lists import Listy
 
 async def pobierzListy(
     oddzialy: bool,
     nauczyciele: bool,
     sale: bool
-) -> UniwersalneListy:
+) -> Listy:
     """
     Pobiera i przetwarza listy oddziałów, nauczycieli oraz sal.
 
@@ -40,7 +40,7 @@ async def pobierzListy(
         sale (bool): Flaga informująca, czy uwzględnić listę sal.
 
     Returns:
-        UniwersalneListy: Słownik zawierający ustrukturyzowane listy, które zostały wybrane.
+        Listy: Słownik zawierający ustrukturyzowane listy, które zostały wybrane.
 
     Raises:
         BłądWewnętrzny: Gdy wystąpi nieoczekiwany błąd przetwarzania.
@@ -60,7 +60,7 @@ async def pobierzListy(
             raise BrakWymaganychDanych
 
         kluczCache = "cache:listy"
-        cacheList = await pobierzModel(kluczCache, UniwersalneListy)
+        cacheList = await pobierzModel(kluczCache, Listy)
 
         if cacheList is not None:
             listy = cacheList
@@ -68,13 +68,13 @@ async def pobierzListy(
             async with semafor:
                 zawartośćStrony = await pobierzZawartośćStrony(atom.sesja, url, kodowanie)
 
-            listy = UniwersalneListy(**await wyodrębnijListy(atom.sesja, zawartośćStrony, url))
+            listy = Listy(**await wyodrębnijListy(atom.sesja, zawartośćStrony, url))
             await zapiszModel(kluczCache, listy)
 
         if not oddzialy and not nauczyciele and not sale:
             return listy
 
-        return UniwersalneListy(
+        return Listy(
             oddzialy=listy.oddzialy if oddzialy else None,
             nauczyciele=listy.nauczyciele if nauczyciele else None,
             sale=listy.sale if sale else None

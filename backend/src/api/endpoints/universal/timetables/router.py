@@ -15,7 +15,7 @@ from fastapi import (
 )
 
 # Wewnętrzne importy
-from src.api.endpoints.universal.timetables.schemas import UniwersalnyPlanLekcji
+from src.schemas.timetables import PlanLekcji
 from src.api.endpoints.universal.timetables.service import pobierzPlanLekcji
 
 router = APIRouter(
@@ -25,7 +25,7 @@ router = APIRouter(
 
 @router.get(
     "",
-    response_model=UniwersalnyPlanLekcji,
+    response_model=PlanLekcji,
     responses={
         400: {"description": "Otrzymano nieprawidłowy identyfikator."},
         500: {"description": "Wystąpił nieoczekiwany błąd po stronie serwera."},
@@ -41,5 +41,5 @@ async def planlekcji(
     zastepstwa: bool = Query(False, description="Określa, czy uwzględniać zastępstwa w planie lekcji. Przy włączonej opcji pobranie planu sali nie będzie możliwe."),
     religia: bool = Query(True, description="Określa, czy uwzględniać lekcje religii w planie lekcji."),
     edukacjaZdrowotna: bool = Query(True, description="Określa, czy uwzględniać lekcje edukacji zdrowotnej w planie lekcji.")
-) -> UniwersalnyPlanLekcji:
+) -> PlanLekcji:
     return await pobierzPlanLekcji(identyfikator, grupy, zastepstwa, religia, edukacjaZdrowotna)

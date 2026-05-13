@@ -12,8 +12,8 @@
 from asyncio import to_thread
 
 # Wewnętrzne importy
-from src.api.endpoints.universal.numbers.schemas import UniwersalneSzczesliweNumerki
 from src.handlers.database import połączBazęDanych
+from src.schemas.numbers import SzczęśliweNumerki
 
 async def zainicjalizujBazęNumerków() -> None:
     """
@@ -40,7 +40,7 @@ async def zainicjalizujBazęNumerków() -> None:
     await to_thread(_zainicjalizujBazęNumerków)
 
 
-async def pobierzSzczęśliweNumerki(data: str) -> UniwersalneSzczesliweNumerki | None:
+async def pobierzSzczęśliweNumerki(data: str) -> SzczęśliweNumerki | None:
     """
     Pobiera szczęśliwe numerki zapisane dla wybranej daty.
 
@@ -48,10 +48,10 @@ async def pobierzSzczęśliweNumerki(data: str) -> UniwersalneSzczesliweNumerki 
         data (str): Data w formacie ISO.
 
     Returns:
-        UniwersalneSzczesliweNumerki | None: Zapisane szczęśliwe numerki albo None.
+        SzczęśliweNumerki | None: Zapisane szczęśliwe numerki albo None.
     """
 
-    def _pobierzSzczęśliweNumerki(data: str) -> UniwersalneSzczesliweNumerki | None:
+    def _pobierzSzczęśliweNumerki(data: str) -> SzczęśliweNumerki | None:
         """
         Pobiera szczęśliwe numerki zapisane dla wybranej daty w wątku roboczym.
         """
@@ -73,7 +73,7 @@ async def pobierzSzczęśliweNumerki(data: str) -> UniwersalneSzczesliweNumerki 
         if wiersz["pierwszy_numerek"] is not None and wiersz["drugi_numerek"] is not None:
             numerki = (wiersz["pierwszy_numerek"], wiersz["drugi_numerek"])
 
-        return UniwersalneSzczesliweNumerki(
+        return SzczęśliweNumerki(
             data=wiersz["data"],
             numerki=numerki,
             informacja=wiersz["informacja"],
@@ -82,15 +82,15 @@ async def pobierzSzczęśliweNumerki(data: str) -> UniwersalneSzczesliweNumerki 
     return await to_thread(_pobierzSzczęśliweNumerki, data)
 
 
-async def zapiszSzczęśliweNumerki(numerki: UniwersalneSzczesliweNumerki) -> None:
+async def zapiszSzczęśliweNumerki(numerki: SzczęśliweNumerki) -> None:
     """
     Zapisuje szczęśliwe numerki dla danego dnia do bazy danych.
 
     Args:
-        numerki (UniwersalneSzczesliweNumerki): Szczęśliwe numerki do zapisania.
+        numerki (SzczęśliweNumerki): Szczęśliwe numerki do zapisania.
     """
 
-    def _zapiszSzczęśliweNumerki(numerki: UniwersalneSzczesliweNumerki) -> None:
+    def _zapiszSzczęśliweNumerki(numerki: SzczęśliweNumerki) -> None:
         """
         Zapisuje szczęśliwe numerki dla danego dnia do bazy danych w wątku roboczym.
         """

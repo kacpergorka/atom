@@ -15,8 +15,8 @@ from fastapi import (
 )
 
 # Wewnętrzne importy
-from src.api.endpoints.universal.announcements.schemas import UniwersalneOgloszenia
 from src.api.endpoints.universal.announcements.service import pobierzOgłoszenia
+from src.schemas.announcements import Ogłoszenia
 
 router = APIRouter(
     prefix="/v1/ogloszenia",
@@ -25,7 +25,7 @@ router = APIRouter(
 
 @router.get(
     "",
-    response_model=UniwersalneOgloszenia,
+    response_model=Ogłoszenia,
     responses={
         500: {"description": "Wystąpił nieoczekiwany błąd po stronie serwera."},
         502: {"description": "Wystąpił błąd podczas przetwarzania danych."},
@@ -34,5 +34,5 @@ router = APIRouter(
     summary="Pobiera podglądy ogłoszeń z listy aktualności.",
     description="Pobiera podglądy ogłoszeń z listy aktualności ze strony internetowej szkoły, której to URL wprowadzony jest w pliku konfiguracyjnym API."
 )
-async def ogloszenia(strona: int = Query(1, ge=1, description="Numer strony listy aktualności.")) -> UniwersalneOgloszenia:
+async def ogloszenia(strona: int = Query(1, ge=1, description="Numer strony listy aktualności.")) -> Ogłoszenia:
     return await pobierzOgłoszenia(strona)
