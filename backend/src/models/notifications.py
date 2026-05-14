@@ -10,6 +10,7 @@
 
 # Standardowe biblioteki
 from dataclasses import dataclass
+from enum import StrEnum
 import os
 from pathlib import Path
 
@@ -118,6 +119,126 @@ class PreferencjePowiadomień:
             )
             if grupa
         )
+
+
+class AkcjaPowiadomieniaPush(StrEnum):
+    """
+    Dodatkowe akcje wykonywane po otwarciu ekranu z powiadomienia.
+    """
+
+    pokażInformacjeDodatkowe = "pokaz_informacje_dodatkowe"
+
+
+class EkranPowiadomieniaPush(StrEnum):
+    """
+    Docelowe ekrany aplikacji mobilnej Atom obsługiwane przez payload powiadomień.
+    """
+
+    dashboard = "dashboard"
+    planLekcji = "plan_lekcji"
+    zastępstwa = "zastepstwa"
+
+
+class TypPowiadomieniaPush(StrEnum):
+    """
+    Typy powiadomień wysyłanych do aplikacji mobilnej Atom.
+    """
+
+    zastępstwa = "zastępstwa"
+    informacjeDodatkowe = "informacje_dodatkowe"
+    szczęśliwyNumerek = "szczęśliwy_numerek"
+
+
+@dataclass(frozen=True)
+class TreśćPowiadomieniaPush:
+    """
+    Konfiguracja treści i nawigacji pojedynczego typu powiadomienia.
+    """
+
+    tytuł: str
+    treść: str
+    ekran: EkranPowiadomieniaPush
+    akcja: AkcjaPowiadomieniaPush | None = None
+
+
+treściPowiadomieńPush: dict[TypPowiadomieniaPush, TreśćPowiadomieniaPush] = {
+    TypPowiadomieniaPush.zastępstwa: TreśćPowiadomieniaPush(
+        tytuł="Nowe zastępstwa",
+        treść="Pojawiły się nowe wpisy zastępstw przypisane do Twojego planu lekcji.",
+        ekran=EkranPowiadomieniaPush.planLekcji,
+    ),
+    TypPowiadomieniaPush.informacjeDodatkowe: TreśćPowiadomieniaPush(
+        tytuł="Informacje dodatkowe",
+        treść="Zmieniły się informacje dodatkowe załączone do wpisów zastępstw.",
+        ekran=EkranPowiadomieniaPush.zastępstwa,
+        akcja=AkcjaPowiadomieniaPush.pokażInformacjeDodatkowe,
+    ),
+    TypPowiadomieniaPush.szczęśliwyNumerek: TreśćPowiadomieniaPush(
+        tytuł="Szczęśliwy numerek",
+        treść="Dzisiaj jest Twój szczęśliwy dzień, masz szczęśliwy numerek.",
+        ekran=EkranPowiadomieniaPush.dashboard,
+    ),
+}
+
+
+@dataclass(frozen=True)
+class PowiadomieniePush:
+    """
+    Model powiadomienia APNs z ujednoliconym payloadem dla aplikacji mobilnej.
+    """
+
+    typ: TypPowiadomieniaPush
+    dzień: str | None = None
+
+    @property
+    def konfiguracja(self) -> TreśćPowiadomieniaPush:
+        return treściPowiadomieńPush[self.typ]
+
+    @property
+    def tytuł(self) -> str:
+        return self.konfiguracja.tytuł
+
+    @property
+    def treść(self) -> str:
+        return self.konfiguracja.treść
+
+    @property
+    def ekran(self) -> EkranPowiadomieniaPush:
+        return self.konfiguracja.ekran
+
+    @property
+    def akcja(self) -> AkcjaPowiadomieniaPush | None:
+        return self.konfiguracja.akcja
+
+    def zbudujPayload(self) -> dict[str, object]:
+        """
+        Buduje payload APNs z polami systemowymi i nawigacją aplikacji.
+
+        Returns:
+            dict[str, object]: Payload wysyłany do APNs.
+        """
+
+        payload: dict[str, object] = {
+            "aps": {
+                "alert": {
+                    "title": self.tytuł,
+                    "body": self.treść,
+                },
+                "badge": 1,
+                "sound": "default",
+                "thread-id": self.typ.value,
+            },
+            "typ": self.typ.value,
+            "ekran": self.ekran.value,
+        }
+
+        if self.akcja is not None:
+            payload["akcja"] = self.akcja.value
+
+        if self.dzień is not None:
+            payload["dzien"] = self.dzień
+
+        return payload
 
 
 @dataclass(frozen=True)

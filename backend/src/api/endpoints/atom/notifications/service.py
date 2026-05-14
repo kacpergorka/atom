@@ -15,19 +15,18 @@ import httpx
 from src.classes.apns import klientAPNs
 from src.handlers.logging import logowanie
 from src.handlers.notifications import database
+from src.models.notifications import PowiadomieniePush
 
 async def wyślijPowiadomienieDoUżytkownika(
     identyfikatorUżytkownika: str,
-    tytuł: str,
-    treść: str
+    powiadomienie: PowiadomieniePush
 ) -> None:
     """
     Wysyła powiadomienie APNs do wszystkich urządzeń użytkownika.
 
     Args:
         identyfikatorUżytkownika (str): Identyfikator użytkownika, do którego należą urządzenia.
-        tytuł (str): Tytuł powiadomienia.
-        treść (str): Treść powiadomienia.
+        powiadomienie (PowiadomieniePush): Powiadomienie z ujednoliconym payloadem APNs.
     """
 
     tokenyUrządzeń = await database.pobierzTokenyUżytkownika(identyfikatorUżytkownika)
@@ -39,7 +38,7 @@ async def wyślijPowiadomienieDoUżytkownika(
 
     for tokenUrządzenia in tokenyUrządzeń:
         try:
-            wynik = await klientAPNs.wyślijPowiadomienie(tokenUrządzenia, tytuł, treść)
+            wynik = await klientAPNs.wyślijPowiadomienie(tokenUrządzenia, powiadomienie)
         except (RuntimeError, httpx.HTTPError) as e:
             nieudane += 1
             logowanie.exception(

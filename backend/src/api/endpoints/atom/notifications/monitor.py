@@ -10,8 +10,10 @@
 
 # Standardowe biblioteki
 import asyncio
+from datetime import datetime
 import hashlib
 import json
+from zoneinfo import ZoneInfo
 
 # Wewnętrzne importy
 from src.api.endpoints.atom.notifications.service import wyślijPowiadomienieDoUżytkownika
@@ -19,7 +21,11 @@ from src.api.endpoints.universal.numbers.service import pobierzSzczęśliweNumer
 from src.api.endpoints.universal.substitutions.service import pobierzZastępstwa
 from src.handlers.logging import logowanie
 from src.handlers.notifications import database
-from src.models.notifications import PreferencjePowiadomień
+from src.models.notifications import (
+    PowiadomieniePush,
+    PreferencjePowiadomień,
+    TypPowiadomieniaPush
+)
 
 def utwórzOdcisk(dane: object) -> str:
     """
@@ -34,6 +40,39 @@ def utwórzOdcisk(dane: object) -> str:
 
     tekst = json.dumps(dane, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(tekst.encode("utf-8")).hexdigest()
+
+
+def wybierzDzieńZastępstw(dni: list[str]) -> str | None:
+    """
+    Wybiera najbliższy dzień zastępstw, pomijając dni robocze, które już minęły w bieżącym tygodniu.
+
+    Args:
+        dni (list[str]): Dni tygodnia zwrócone przez parser zastępstw.
+
+    Returns:
+        str | None: Najbliższy dzień tygodnia albo None, gdy nie ma przyszłego dnia.
+    """
+
+    dniTygodnia = {
+        "Poniedziałek": 0,
+        "Wtorek": 1,
+        "Środa": 2,
+        "Czwartek": 3,
+        "Piątek": 4,
+    }
+
+    dzisiaj = datetime.now(ZoneInfo("Europe/Warsaw")).weekday()
+    najwcześniejszyIndeks = dzisiaj if dzisiaj < 5 else 0
+    kandydaci = [
+        (indeks, dzień)
+        for dzień in dni
+        if (indeks := dniTygodnia.get(dzień)) is not None and indeks >= najwcześniejszyIndeks
+    ]
+
+    if not kandydaci:
+        return None
+
+    return min(kandydaci, key=lambda kandydat: kandydat[0])[1]
 
 
 async def monitorujNumerki(preferencje: list[PreferencjePowiadomień]) -> None:
@@ -66,8 +105,7 @@ async def monitorujNumerki(preferencje: list[PreferencjePowiadomień]) -> None:
         if preferencja.numerekUcznia in szczęśliweNumerki:
             await wyślijPowiadomienieDoUżytkownika(
                 preferencja.identyfikatorUżytkownika,
-                "Szczęśliwy numerek",
-                f"Dzisiaj jest Twój szczęśliwy dzień, masz szczęśliwy numerek.",
+                PowiadomieniePush(TypPowiadomieniaPush.szczęśliwyNumerek),
             )
 
     await database.zapiszStanMonitora(klucz, nowyOdcisk)
@@ -118,18 +156,17 @@ async def monitorujZastępstwa(preferencje: list[PreferencjePowiadomień]) -> No
             continue
 
         if poprzedniOdciskZastępstw != nowyOdciskZastępstw:
+            dzieńZastępstw = wybierzDzieńZastępstw(dane.get("dni") or [])
             for preferencja in dopasowanePreferencje:
                 await wyślijPowiadomienieDoUżytkownika(
                     preferencja.identyfikatorUżytkownika,
-                    "Nowe zastępstwa",
-                    "Pojawiły się nowe wpisy zastępstw przypisane do Twojego planu lekcji.",
+                    PowiadomieniePush(TypPowiadomieniaPush.zastępstwa, dzień=dzieńZastępstw),
                 )
         elif poprzedniOdciskInformacji != nowyOdciskInformacji:
             for preferencja in dopasowanePreferencje:
                 await wyślijPowiadomienieDoUżytkownika(
                     preferencja.identyfikatorUżytkownika,
-                    "Informacje dodatkowe",
-                    "Zmieniły się informacje dodatkowe załączone do wpisów zastępstw.",
+                    PowiadomieniePush(TypPowiadomieniaPush.informacjeDodatkowe),
                 )
 
         await database.zapiszStanMonitora(kluczZastępstw, nowyOdciskZastępstw)

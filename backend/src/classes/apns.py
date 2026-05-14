@@ -20,6 +20,7 @@ import jwt
 from src.handlers.logging import logowanie
 from src.models.notifications import (
     KonfiguracjaAPNs,
+    PowiadomieniePush,
     WynikAPNs
 )
 
@@ -113,16 +114,14 @@ class APNs:
     async def wyślijPowiadomienie(
         self,
         tokenUrządzenia: str,
-        tytuł: str,
-        treść: str
+        powiadomienie: PowiadomieniePush
     ) -> WynikAPNs:
         """
         Wysyła pojedyncze powiadomienie APNs na token urządzenia.
 
         Args:
             tokenUrządzenia (str): Token APNs urządzenia odbiorcy.
-            tytuł (str): Tytuł powiadomienia.
-            treść (str): Treść powiadomienia.
+            powiadomienie (PowiadomieniePush): Powiadomienie z gotową treścią i nawigacją aplikacji.
 
         Returns:
             WynikAPNs: Wynik próby wysłania powiadomienia.
@@ -130,15 +129,7 @@ class APNs:
 
         konfiguracja = self.pobierzKonfigurację()
         identyfikatorPowiadomienia = str(uuid.uuid4())
-        dane: dict[str, object] = {
-            "aps": {
-                "alert": {
-                    "title": tytuł,
-                    "body": treść,
-                },
-                "sound": "default",
-            }
-        }
+        dane = powiadomienie.zbudujPayload()
 
         if self.klient is None:
             self.klient = httpx.AsyncClient(
