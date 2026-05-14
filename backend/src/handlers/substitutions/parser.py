@@ -204,7 +204,7 @@ async def wyodrębnijZastępstwa(
             6: "Niedziela"
         }
 
-        tekst = tekst.lower().replace("\xa0", " ")
+        tekst = tekst.strip().split("\n")[0].lower().replace("\xa0", " ")
         wzórDni = "|".join(re.escape(dzień) for dzień in dniTygodnia)
 
         for dopasowanie in re.finditer(r"\b(\d{1,2}\.\d{1,2}\.\d{4})\b", tekst):
