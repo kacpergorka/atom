@@ -49,16 +49,16 @@ Natychmiastowe powiadomienia o nowych zmianach w planie lekcji, zastępstwach i 
 
 # Instalacja i uruchamianie API
 
-</div>
-
-> [!NOTE]
-> Do instalacji i uruchomienia Atom API wymagany jest Docker w najnowszej wersji.
-
-<div align="justify">
-
 	git clone https://github.com/kacpergorka/atom/
 	cd atom/backend
 	docker compose up --build
+
+</div>
+
+> [!NOTE]
+> Do instalacji, a następnie uruchomienia Atom API wymagany jest [Docker](https://www.docker.com/get-started/) w najnowszej wersji. W przypadku jakichkolwiek problemów utwórz Issue i dokładnie opisz napotkany problem.
+
+<div align="justify">
 
 #
 Projekt licencjonowany na podstawie licencji [Apache-2.0](./LICENSE). Stworzone z ❤️ przez Kacpra Górkę!
