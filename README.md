@@ -31,7 +31,7 @@ Atom API wykorzystywane przez aplikacje mobilną jest przeznaczone dla deweloper
 
 # Najprzydatniejsze funkcje aplikacji mobilnej Atom
 
-<img align="left" src="https://raw.githubusercontent.com/kacpergorka/atom/develop/assets/1.png" width="30%" />
+<img align="right" src="https://raw.githubusercontent.com/kacpergorka/atom/develop/assets/1.png" width="32%" />
 
 ### 1️⃣ Dashboard wyświetlający najważniejsze informacje
 Szybki podgląd najistotniejszych danych po uruchomieniu aplikacji, takich jak zbliżające się lekcje, szczęśliwe numerki czy inne szkolne materiały dostępne w jednym miejscu.
